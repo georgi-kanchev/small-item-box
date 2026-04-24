@@ -1,47 +1,141 @@
-.layers-panel {
-    flex: 1;        /* Grow to fill all space not used by the tileset */
+.boxes-panel {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    min-height: 0;  /* Crucial for flex child scrolling */
+    min-height: 0;
+    gap: 4px;
 }
 
-.layer-list {
-    flex: 1;
-    overflow-y: auto; /* The scrollbar lives here now */
-    background: #111;
-}
-
-.layer-item {
+.box-actions {
+    flex-shrink: 0;
     display: flex;
-    justify-content: baseline;
-    padding: 4px;
-    background: #222;
+    gap: 3px;
+}
+
+.box-list {
+    flex: 1;
+    overflow-y: auto;
+    background: #111;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.box-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 8px;
+    background: #1e1e1e;
     border-bottom: 1px solid #111;
-    border-top: 1px solid #111;
+    cursor: pointer;
+}
+
+.box-item:last-child {
+    border-bottom: none;
+}
+
+.box-item span {
+    flex-grow: 1;
+    font-size: 13px;
+    color: #cecece;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+.box-item.selected {
+    background: #2a2a2a;
+}
+
+.inspector {
+    flex-shrink: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.inspector-row {
+    display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.layer-item span {
-    flex-grow: 1;        /* This makes the span fill all available space */
-    font-size: 15px;
-    color: #cecece;
-    white-space: nowrap; /* Prevents the text from wrapping */
-    overflow: hidden;    /* Clips text if it gets too long */
-    text-overflow: ellipsis; /* Adds '...' if the text is cut off */
-    
-    cursor: default;
-}
-
-.layer-item.selected {
-    background: #525252;
-    font-weight: bolder;
-}
-
-.layer-actions {
+.inspector-row label {
+    font-size: 11px;
+    color: #777;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     flex-shrink: 0;
-    padding: 4px;
-    display: row;
-    background: #1f1f1f;
-    gap: 2px;
+}
+
+.inspector-row input {
+    background: #111;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    color: var(--text-main);
+    font-size: 13px;
+    padding: 4px 6px;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.inspector-row input:focus {
+    border-color: #555;
+}
+
+.inspector-row input:disabled {
+    color: #444;
+}
+
+.inspector-actions {
+    display: flex;
+    gap: 3px;
+}
+
+.inspector-actions button {
+    font-size: 11px;
+    padding: 2px 7px;
+    height: 22px;
+}
+
+.box-item button {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.box-item[draggable] {
+    cursor: grab;
+}
+
+.drag-ghost {
+    position: fixed;
+    top: -1000px;
+    left: -1000px;
+    background: #2a2a2a;
+    border: 1px solid #555;
+    color: #ccc;
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.box-item.dragging {
+    opacity: 0.35;
+}
+
+.box-item.drag-over-top {
+    box-shadow: 0 -2px 0 var(--accent-color);
+}
+
+.box-item.drag-over-bottom {
+    box-shadow: 0 2px 0 var(--accent-color);
 }

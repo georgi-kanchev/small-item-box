@@ -1,4 +1,4 @@
-const camera = {x: 550, y: 180, zoom: 1};
+const camera = {x: 350, y: 180, zoom: 1.3};
 
 function screenToWorld(clientX, clientY, canvas) {
     const rect = canvas.getBoundingClientRect();
