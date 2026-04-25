@@ -294,7 +294,7 @@
 .formula-help-panel {
     display: none;
     position: fixed;
-    width: 320px;
+    width: 380px;
     background: #1a1a1a;
     border: 1px solid #333;
     border-radius: 6px;
@@ -311,30 +311,28 @@
     font-family: monospace;
 }
 
+.formula-help-cols {
+    display: flex;
+    gap: 16px;
+    margin-top: 10px;
+}
+
 .formula-help-table {
     border-collapse: collapse;
-    margin-top: 10px;
-    width: 100%;
 }
 
 .formula-help-table td {
-    padding: 1px 10px 1px 0;
-    vertical-align: top;
+    padding: 1px 8px 1px 0;
     white-space: nowrap;
+    vertical-align: top;
 }
 
 .formula-help-table td:first-child {
-    color: #bbb;
-    padding-right: 8px;
+    color: #aaa;
 }
 
-.formula-help-table td:nth-child(2) {
+.formula-help-table td:last-child {
     color: #666;
-    padding-right: 16px;
-}
-
-.formula-help-table td:nth-child(3) {
-    color: #999;
 }
 
 .formula-help-panel::after {

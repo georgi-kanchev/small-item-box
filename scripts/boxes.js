@@ -175,10 +175,11 @@ function select(item) {
 }
 
 function focusBox(box) {
+    const r = resolveBox(box);
     const editorRect = document.querySelector('.editor-view').getBoundingClientRect();
     const canvasRect = canvas.getBoundingClientRect();
-    camera.x = (editorRect.left - canvasRect.left) + editorRect.width / 2 - (box.x + box.w / 2) * camera.zoom;
-    camera.y = (editorRect.top - canvasRect.top) + editorRect.height / 2 - (box.y + box.h / 2) * camera.zoom;
+    camera.x = (editorRect.left - canvasRect.left) + editorRect.width / 2 - (r.x + r.w / 2) * camera.zoom;
+    camera.y = (editorRect.top - canvasRect.top) + editorRect.height / 2 - (r.y + r.h / 2) * camera.zoom;
     drawView();
 }
 
@@ -253,23 +254,20 @@ function updateInspectorDimensions() {
     const item = getSelected();
     if (!item || item._box.isScreen) return;
     const b = item._box;
-    document.getElementById('inputX').value = Math.round(b.x);
-    document.getElementById('inputY').value = Math.round(b.y);
-    document.getElementById('inputW').value = Math.round(b.w);
-    document.getElementById('inputH').value = Math.round(b.h);
+    const f = b.formulas ?? {};
+    document.getElementById('inputX').value = f.x ?? Math.round(b.x);
+    document.getElementById('inputY').value = f.y ?? Math.round(b.y);
+    document.getElementById('inputW').value = f.w ?? Math.round(b.w);
+    document.getElementById('inputH').value = f.h ?? Math.round(b.h);
 }
 
 for (const dim of DIM_KEYS) {
     document.getElementById('input' + dim).addEventListener('input', e => {
         const item = getSelected();
         if (!item || item._box.isScreen) return;
-        const val = parseFloat(e.target.value.replace(',', '.'));
-        if (isNaN(val)) return;
         const b = item._box;
-        if      (dim === 'X') b.x = val;
-        else if (dim === 'Y') b.y = val;
-        else if (dim === 'W') b.w = Math.max(MIN_BOX_SIZE, val);
-        else if (dim === 'H') b.h = Math.max(MIN_BOX_SIZE, val);
+        if (!b.formulas) b.formulas = {};
+        b.formulas[dim.toLowerCase()] = e.target.value;
         drawView();
     });
 
@@ -313,7 +311,7 @@ addBtn.addEventListener('click', () => {
     const maxOffset = Math.min(w - 120, h - 80) - 40;
     const offset = maxOffset > 0 ? (boxes.length * 20) % maxOffset : 0;
     const color = BOX_COLORS[0];
-    const boxData = { name: `Box ${boxCount}`, x: 20 + offset, y: 20 + offset, w: 120, h: 80, visible: true, color, labelBottom: false, targets: {} };
+    const boxData = { name: `Box ${boxCount}`, x: 20 + offset, y: 20 + offset, w: 120, h: 80, visible: true, color, labelBottom: false, targets: {}, formulas: { x: 'mx', y: 'my', w: 'mw', h: 'mh' } };
     boxes.push(boxData);
     const item = createItem(boxData);
     boxList.append(item);
@@ -325,7 +323,7 @@ dupBtn.addEventListener('click', () => {
     if (!selectedItem || selectedItem._box.isScreen) return;
     boxCount++;
     const src = selectedItem._box;
-    const boxData = { ...src, name: src.name + ' copy', x: src.x + 10, y: src.y + 10 };
+    const boxData = { ...src, name: src.name + ' copy', x: src.x + 10, y: src.y + 10, formulas: src.formulas ? { ...src.formulas } : undefined };
     const idx = boxes.indexOf(src);
     boxes.splice(idx + 1, 0, boxData);
     const item = createItem(boxData);

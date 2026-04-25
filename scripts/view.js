@@ -13,6 +13,59 @@ let activeSnapY = null;
 const MIN_BOX_SIZE = 4;
 const SNAP_PX = 8; // screen-space snap threshold
 
+function evalFormula(expr, box, targetBox, depth = 0) {
+    if (depth > 8) return 0;
+    if (expr === null || expr === undefined || String(expr).trim() === '') return null;
+    if (typeof expr === 'number') return expr;
+
+    const { w: sw, h: sh } = getViewSize();
+    let t = { x: 0, y: 0, w: 0, h: 0, visible: false };
+    if (targetBox) {
+        const tr = resolveBox(targetBox, depth + 1);
+        t = { x: tr.x, y: tr.y, w: tr.w, h: tr.h, visible: !!targetBox.visible };
+    }
+
+    const mx = box.x ?? 0, my = box.y ?? 0, mw = box.w ?? 0, mh = box.h ?? 0;
+    const vars = {
+        mx, my, mw, mh,
+        mlx: mx,        mly: my + mh / 2,
+        mrx: mx + mw,   mry: my + mh / 2,
+        mux: mx + mw/2, muy: my,
+        mdx: mx + mw/2, mdy: my + mh,
+        sx: 0, sy: 0, sw, sh,
+        slx: 0,    sly: sh / 2,
+        srx: sw,   sry: sh / 2,
+        sux: sw/2, suy: 0,
+        sdx: sw/2, sdy: sh,
+        tx: t.x, ty: t.y, tw: t.w, th: t.h, tv: t.visible ? 1 : 0,
+        tlx: t.x,        tly: t.y + t.h / 2,
+        trx: t.x + t.w,  try: t.y + t.h / 2,
+        tux: t.x + t.w/2, tuy: t.y,
+        tdx: t.x + t.w/2, tdy: t.y + t.h,
+    };
+
+    let s = String(expr).trim();
+    for (const k of Object.keys(vars).sort((a, b) => b.length - a.length))
+        s = s.replace(new RegExp('\\b' + k + '\\b', 'gi'), vars[k]);
+
+    try {
+        const result = Function('"use strict"; return (' + s + ')')();
+        return typeof result === 'number' && isFinite(result) ? result : null;
+    } catch {
+        return null;
+    }
+}
+
+function resolveBox(box, depth = 0) {
+    const f = box.formulas ?? {};
+    return {
+        x: evalFormula(f.x, box, box.targets?.x, depth) ?? box.x,
+        y: evalFormula(f.y, box, box.targets?.y, depth) ?? box.y,
+        w: evalFormula(f.w, box, box.targets?.w, depth) ?? box.w,
+        h: evalFormula(f.h, box, box.targets?.h, depth) ?? box.h,
+    };
+}
+
 const HANDLE_CURSORS = {
     nw: 'nw-resize', n: 'n-resize', ne: 'ne-resize',
     e: 'e-resize', se: 'se-resize', s: 's-resize',
@@ -20,15 +73,16 @@ const HANDLE_CURSORS = {
 };
 
 function getResizeHandles(box) {
+    const r = resolveBox(box);
     return {
-        nw: { x: box.x,           y: box.y           },
-        n:  { x: box.x + box.w/2, y: box.y           },
-        ne: { x: box.x + box.w,   y: box.y           },
-        e:  { x: box.x + box.w,   y: box.y + box.h/2 },
-        se: { x: box.x + box.w,   y: box.y + box.h   },
-        s:  { x: box.x + box.w/2, y: box.y + box.h   },
-        sw: { x: box.x,           y: box.y + box.h   },
-        w:  { x: box.x,           y: box.y + box.h/2 },
+        nw: { x: r.x,         y: r.y         },
+        n:  { x: r.x + r.w/2, y: r.y         },
+        ne: { x: r.x + r.w,   y: r.y         },
+        e:  { x: r.x + r.w,   y: r.y + r.h/2 },
+        se: { x: r.x + r.w,   y: r.y + r.h   },
+        s:  { x: r.x + r.w/2, y: r.y + r.h   },
+        sw: { x: r.x,         y: r.y + r.h   },
+        w:  { x: r.x,         y: r.y + r.h/2 },
     };
 }
 
@@ -68,9 +122,10 @@ function getSnapTargets(excludeBox) {
     const xs = [], ys = [];
     for (const b of boxes) {
         if (b === excludeBox) continue;
-        if (!b.visible && !b.isScreen) continue; // screen box always snap-eligible
-        xs.push(b.x, b.x + b.w / 2, b.x + b.w);
-        ys.push(b.y, b.y + b.h / 2, b.y + b.h);
+        if (!b.visible && !b.isScreen) continue;
+        const r = resolveBox(b);
+        xs.push(r.x, r.x + r.w / 2, r.x + r.w);
+        ys.push(r.y, r.y + r.h / 2, r.y + r.h);
     }
     return { xs, ys };
 }
@@ -90,9 +145,10 @@ function findBestSnap(candidates, targets, threshold) {
 function snapDrag(box) {
     const threshold = SNAP_PX / camera.zoom;
     const { xs, ys } = getSnapTargets(box);
+    const r = resolveBox(box);
 
-    const sx = findBestSnap([box.x, box.x + box.w / 2, box.x + box.w], xs, threshold);
-    const sy = findBestSnap([box.y, box.y + box.h / 2, box.y + box.h], ys, threshold);
+    const sx = findBestSnap([r.x, r.x + r.w / 2, r.x + r.w], xs, threshold);
+    const sy = findBestSnap([r.y, r.y + r.h / 2, r.y + r.h], ys, threshold);
 
     activeSnapX = sx ? sx.snapAt : null;
     activeSnapY = sy ? sy.snapAt : null;
@@ -104,12 +160,13 @@ function snapDrag(box) {
 function snapResize(box, handle) {
     const threshold = SNAP_PX / camera.zoom;
     const { xs, ys } = getSnapTargets(box);
+    const r = resolveBox(box);
 
-    const snapX = handle.includes('w') ? findBestSnap([box.x], xs, threshold)
-                : handle.includes('e') ? findBestSnap([box.x + box.w], xs, threshold)
+    const snapX = handle.includes('w') ? findBestSnap([r.x], xs, threshold)
+                : handle.includes('e') ? findBestSnap([r.x + r.w], xs, threshold)
                 : null;
-    const snapY = handle.includes('n') ? findBestSnap([box.y], ys, threshold)
-                : handle.includes('s') ? findBestSnap([box.y + box.h], ys, threshold)
+    const snapY = handle.includes('n') ? findBestSnap([r.y], ys, threshold)
+                : handle.includes('s') ? findBestSnap([r.y + r.h], ys, threshold)
                 : null;
 
     activeSnapX = snapX ? snapX.snapAt : null;
@@ -153,16 +210,18 @@ canvas.addEventListener('mousedown', (e) => {
             resizeHandle = handle;
             resizeStart = { mouseX: world.x, mouseY: world.y, box: { ...selectedBox } };
         } else {
-            const hit = boxes.findLast(b =>
-                !b.isScreen && b.visible &&
-                world.x >= b.x && world.x <= b.x + b.w &&
-                world.y >= b.y && world.y <= b.y + b.h
-            );
+            const hit = boxes.findLast(b => {
+                if (b.isScreen || !b.visible) return false;
+                const r = resolveBox(b);
+                return world.x >= r.x && world.x <= r.x + r.w &&
+                       world.y >= r.y && world.y <= r.y + r.h;
+            });
             if (hit) {
                 const item = [...boxList.querySelectorAll('.box-item')].find(i => i._box === hit);
                 if (item) select(item);
                 isDragging = true;
-                dragOffset = { x: world.x - hit.x, y: world.y - hit.y };
+                const hr = resolveBox(hit);
+                dragOffset = { x: world.x - hr.x, y: world.y - hr.y };
                 canvas.style.cursor = 'grabbing';
             } else {
                 select(null);
@@ -196,8 +255,9 @@ window.addEventListener('mousemove', (e) => {
         const selectedItem = document.querySelector('.box-item.selected');
         if (selectedItem?._box) {
             const box = selectedItem._box;
-            box.x = world.x - dragOffset.x;
-            box.y = world.y - dragOffset.y;
+            const r = resolveBox(box);
+            box.x += (world.x - dragOffset.x) - r.x;
+            box.y += (world.y - dragOffset.y) - r.y;
             snapDrag(box);
             updateInspectorDimensions();
             drawView();
@@ -219,11 +279,12 @@ canvas.addEventListener('mousemove', (e) => {
     if (handle) {
         canvas.style.cursor = HANDLE_CURSORS[handle];
     } else {
-        const hit = boxes.findLast(b =>
-            !b.isScreen && b.visible &&
-            world.x >= b.x && world.x <= b.x + b.w &&
-            world.y >= b.y && world.y <= b.y + b.h
-        ) ?? null;
+        const hit = boxes.findLast(b => {
+            if (b.isScreen || !b.visible) return false;
+            const r = resolveBox(b);
+            return world.x >= r.x && world.x <= r.x + r.w &&
+                   world.y >= r.y && world.y <= r.y + r.h;
+        }) ?? null;
         canvas.style.cursor = hit ? 'pointer' : 'default';
         if (hit !== hoveredBox) {
             hoveredBox = hit;
@@ -316,11 +377,12 @@ function drawView() {
     // pass 1: bodies
     for (const box of boxes) {
         const isSelected = box === selectedBox;
+        const r = resolveBox(box);
 
         if (box.isScreen) {
             ctx.strokeStyle = isSelected ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.2)';
             ctx.lineWidth = 1 / camera.zoom;
-            ctx.strokeRect(box.x, box.y, box.w, box.h);
+            ctx.strokeRect(r.x, r.y, r.w, r.h);
             continue;
         }
 
@@ -330,27 +392,28 @@ function drawView() {
         if (!box.visible) continue;
 
         ctx.fillStyle = '#1c1c1c';
-        ctx.fillRect(box.x, box.y, box.w, box.h);
+        ctx.fillRect(r.x, r.y, r.w, r.h);
 
         ctx.fillStyle = hexToRgba(c, isSelected && isHovered ? 0.28 : isSelected ? 0.2 : isHovered ? 0.14 : 0.1);
-        ctx.fillRect(box.x, box.y, box.w, box.h);
+        ctx.fillRect(r.x, r.y, r.w, r.h);
 
         ctx.strokeStyle = isSelected ? 'rgba(255,255,255,0.9)' : hexToRgba(c, isHovered ? 0.7 : 0.45);
         ctx.lineWidth = (isSelected ? 1.5 : 1) / camera.zoom;
-        ctx.strokeRect(box.x, box.y, box.w, box.h);
+        ctx.strokeRect(r.x, r.y, r.w, r.h);
     }
 
     // pass 2: labels always on top
     for (const box of boxes) {
         if (box.isScreen || !box.visible) continue;
+        const r = resolveBox(box);
         const c = box.color ?? '#5b9bd9';
         const isSelected = box === selectedBox;
         const labelY = box.labelBottom
-            ? box.y + box.h - 4 / camera.zoom
-            : box.y + 14 / camera.zoom;
+            ? r.y + r.h - 4 / camera.zoom
+            : r.y + 14 / camera.zoom;
         ctx.fillStyle = hexToRgba(c, isSelected ? 0.9 : 0.6);
         ctx.font = `${11 / camera.zoom}px 'Segoe UI', sans-serif`;
-        ctx.fillText(box.name, box.x + 4 / camera.zoom, labelY);
+        ctx.fillText(box.name, r.x + 4 / camera.zoom, labelY);
     }
 
     // snap lines
