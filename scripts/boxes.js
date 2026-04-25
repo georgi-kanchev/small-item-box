@@ -1,6 +1,7 @@
 const boxList = document.getElementById('palette');
 const addBtn = document.getElementById('addBtn');
 const inspectorName = document.getElementById('inspectorName');
+const inspectorId = document.getElementById('inspectorId');
 const inspector = document.getElementById('inspector');
 const dupBtn = document.getElementById('dupBtn');
 const visibilityBtn = document.getElementById('visibilityBtn');
@@ -49,11 +50,11 @@ function createItem(boxData) {
     const item = document.createElement('div');
     item.className = 'box-item';
     item.setAttribute('draggable', true);
-    item.innerHTML = `<button>👁️</button><span>${boxData.name}</span><button>✖️</button>`;
+    item.innerHTML = `<span class="box-id"></span><button class="eye-btn">👁️</button><span class="box-name">${boxData.name}</span><button class="del-btn">✖️</button>`;
     item._box = boxData;
     item.style.setProperty('--item-color', boxData.color);
 
-    const eyeBtn = item.querySelector('button:first-child');
+    const eyeBtn = item.querySelector('.eye-btn');
     eyeBtn.addEventListener('click', () => {
         boxData.visible = !boxData.visible;
         item.classList.toggle('hidden', !boxData.visible);
@@ -64,11 +65,11 @@ function createItem(boxData) {
         drawView();
     });
 
-    item.querySelector('button:last-child').addEventListener('click', () => {
+    item.querySelector('.del-btn').addEventListener('click', () => {
         const wasSelected = item.classList.contains('selected');
         boxes.splice(boxes.indexOf(item._box), 1);
         item.remove();
-
+        syncBoxIds();
         drawView();
         if (wasSelected) select(boxList.querySelector('.box-item'));
     });
@@ -123,16 +124,26 @@ function createItem(boxData) {
 function createScreenItem() {
     const item = document.createElement('div');
     item.className = 'box-item screen-item';
-    item.innerHTML = `<span>Screen</span>`;
+    item.innerHTML = `<span class="box-name">Screen</span>`;
     item._box = screenBox;
     item.addEventListener('click', () => select(item));
     return item;
+}
+
+function syncBoxIds() {
+    boxList.querySelectorAll('.box-item').forEach(item => {
+        const span = item.querySelector('.box-id');
+        if (span) span.textContent = boxes.indexOf(item._box);
+    });
 }
 
 function syncBoxesOrder() {
     const items = [...boxList.querySelectorAll('.box-item')];
     boxes.length = 0;
     items.forEach(item => boxes.push(item._box));
+    syncBoxIds();
+    const sel = getSelected();
+    if (sel?._box && !sel._box.isScreen) inspectorId.textContent = `#${boxes.indexOf(sel._box)}`;
     drawView();
 }
 
@@ -152,6 +163,7 @@ function select(item) {
             colorSwatches.style.display = 'none';
             labelPosBtn.style.display = 'none';
         } else {
+            inspectorId.textContent = `#${boxes.indexOf(item._box)}`;
             setActiveSwatch(item._box.color);
             colorSwatches.style.display = '';
             labelPosBtn.style.display = '';
@@ -188,7 +200,7 @@ visibilityBtn.addEventListener('click', () => {
     if (!item || item._box.targets?.v) return;
     item._box.visible = !item._box.visible;
     item.classList.toggle('hidden', !item._box.visible);
-    item.querySelector('button:first-child').classList.toggle('hidden-state', !item._box.visible);
+    item.querySelector('.eye-btn').classList.toggle('hidden-state', !item._box.visible);
     visibilityBtn.classList.toggle('hidden-state', !item._box.visible);
     syncVisibilityTargets();
     drawView();
@@ -225,7 +237,7 @@ function syncVisibilityTargets() {
         const listItem = [...boxList.querySelectorAll('.box-item')].find(i => i._box === b);
         if (listItem) {
             listItem.classList.toggle('hidden', !newVisible);
-            const eyeBtn = listItem.querySelector('button:first-child');
+            const eyeBtn = listItem.querySelector('.eye-btn');
             if (eyeBtn) eyeBtn.classList.toggle('hidden-state', !newVisible);
         }
     }
@@ -309,7 +321,7 @@ inspectorName.addEventListener('input', () => {
     const item = getSelected();
     if (!item || item._box.isScreen) return;
     item._box.name = inspectorName.value;
-    item.querySelector('span').textContent = inspectorName.value;
+    item.querySelector('.box-name').textContent = inspectorName.value;
     drawView();
 });
 
@@ -329,6 +341,7 @@ addBtn.addEventListener('click', () => {
     boxes.push(boxData);
     const item = createItem(boxData);
     boxList.append(item);
+    syncBoxIds();
     select(item);
 });
 
@@ -342,6 +355,7 @@ dupBtn.addEventListener('click', () => {
     boxes.splice(idx + 1, 0, boxData);
     const item = createItem(boxData);
     selectedItem.after(item);
+    syncBoxIds();
     select(item);
 });
 

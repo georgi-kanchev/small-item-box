@@ -63,7 +63,7 @@
     border-bottom: none;
 }
 
-.box-item span {
+.box-item .box-name {
     flex-grow: 1;
     font-size: 13px;
     color: #cecece;
@@ -118,6 +118,16 @@
 .inspector-name-row {
     display: flex;
     align-items: center;
+}
+
+.dim-header {
+    grid-template-columns: auto 1fr 1fr;
+}
+
+.inspector-id {
+    font-size: 13px;
+    color: #555;
+    user-select: none;
 }
 
 .name-input-wrap {
@@ -263,6 +273,14 @@
     align-items: center;
     justify-content: center;
     gap: 3px;
+}
+
+.box-id {
+    font-size: 9px;
+    color: #ffffff;
+    flex-grow: 0;
+    flex-shrink: 0;
+    user-select: none;
 }
 
 .formula-help-btn {
