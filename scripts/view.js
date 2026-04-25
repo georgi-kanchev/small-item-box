@@ -13,44 +13,54 @@ let activeSnapY = null;
 const MIN_BOX_SIZE = 4;
 const SNAP_PX = 8; // screen-space snap threshold
 
+// param order must stay in sync with the args array in evalFormula
+const FORMULA_PARAMS = [
+    'mx','my','mw','mh','mlx','mly','mrx','mry','mux','muy','mdx','mdy',
+    'sx','sy','sw','sh','slx','sly','srx','sry','sux','suy','sdx','sdy',
+    'tx','ty','tw','th','tv','tlx','tly','trx','tRY','tux','tuy','tdx','tdy',
+];
+const formulaCache = new Map();
+
+function compileFormula(expr) {
+    const sanitized = String(expr).trim().replace(/\btry\b/gi, 'tRY');
+    try {
+        return new Function(...FORMULA_PARAMS, '"use strict"; return (' + sanitized + ')');
+    } catch {
+        return null;
+    }
+}
+
 function evalFormula(expr, box, targetBox, depth = 0, forbidden = null) {
     if (depth > 8) return null;
     if (expr === null || expr === undefined || String(expr).trim() === '') return null;
     if (typeof expr === 'number') return expr;
 
+    const key = String(expr).trim();
+    if (!formulaCache.has(key)) formulaCache.set(key, compileFormula(key));
+    const fn = formulaCache.get(key);
+    if (!fn) return null;
+
     const { w: sw, h: sh } = getViewSize();
-    let t = { x: 0, y: 0, w: 0, h: 0, visible: false };
     const effectiveTarget = forbidden?.has(targetBox) ? null : targetBox;
+    let t = { x: 0, y: 0, w: 0, h: 0, visible: false };
     if (effectiveTarget) {
         const tr = resolveBox(effectiveTarget, depth + 1, forbidden);
         t = { x: tr.x, y: tr.y, w: tr.w, h: tr.h, visible: !!effectiveTarget.visible };
     }
 
     const mx = box.x ?? 0, my = box.y ?? 0, mw = box.w ?? 0, mh = box.h ?? 0;
-    const vars = {
-        mx, my, mw, mh,
-        mlx: mx,        mly: my + mh / 2,
-        mrx: mx + mw,   mry: my + mh / 2,
-        mux: mx + mw/2, muy: my,
-        mdx: mx + mw/2, mdy: my + mh,
-        sx: 0, sy: 0, sw, sh,
-        slx: 0,    sly: sh / 2,
-        srx: sw,   sry: sh / 2,
-        sux: sw/2, suy: 0,
-        sdx: sw/2, sdy: sh,
-        tx: t.x, ty: t.y, tw: t.w, th: t.h, tv: t.visible ? 1 : 0,
-        tlx: t.x,        tly: t.y + t.h / 2,
-        trx: t.x + t.w,  try: t.y + t.h / 2,
-        tux: t.x + t.w/2, tuy: t.y,
-        tdx: t.x + t.w/2, tdy: t.y + t.h,
-    };
-
-    let s = String(expr).trim();
-    for (const k of Object.keys(vars).sort((a, b) => b.length - a.length))
-        s = s.replace(new RegExp('\\b' + k + '\\b', 'gi'), vars[k]);
-
     try {
-        const result = Function('"use strict"; return (' + s + ')')();
+        const result = fn(
+            mx, my, mw, mh,
+            mx, my + mh/2, mx + mw, my + mh/2,
+            mx + mw/2, my, mx + mw/2, my + mh,
+            0, 0, sw, sh,
+            0, sh/2, sw, sh/2,
+            sw/2, 0, sw/2, sh,
+            t.x, t.y, t.w, t.h, t.visible ? 1 : 0,
+            t.x, t.y + t.h/2, t.x + t.w, t.y + t.h/2,
+            t.x + t.w/2, t.y, t.x + t.w/2, t.y + t.h,
+        );
         return typeof result === 'number' && isFinite(result) ? result : null;
     } catch {
         return null;

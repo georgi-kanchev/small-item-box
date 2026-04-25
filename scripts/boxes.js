@@ -337,7 +337,7 @@ dupBtn.addEventListener('click', () => {
     if (!selectedItem || selectedItem._box.isScreen) return;
     boxCount++;
     const src = selectedItem._box;
-    const boxData = { ...src, name: src.name + ' copy', x: src.x + 10, y: src.y + 10, formulas: src.formulas ? { ...src.formulas } : undefined };
+    const boxData = { ...src, name: src.name + ' copy', x: src.x + 10, y: src.y + 10, formulas: src.formulas ? { ...src.formulas } : undefined, targets: { ...(src.targets ?? {}) } };
     const idx = boxes.indexOf(src);
     boxes.splice(idx + 1, 0, boxData);
     const item = createItem(boxData);
