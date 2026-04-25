@@ -60,6 +60,7 @@ function createItem(boxData) {
         eyeBtn.classList.toggle('hidden-state', !boxData.visible);
         if (item.classList.contains('selected'))
             visibilityBtn.classList.toggle('hidden-state', !boxData.visible);
+        syncVisibilityTargets();
         drawView();
     });
 
@@ -150,27 +151,24 @@ function select(item) {
             setActiveSwatch(null);
             colorSwatches.style.display = 'none';
             labelPosBtn.style.display = 'none';
-            visibilityBtn.style.display = 'none';
-            inspectorName.style.paddingRight = '6px';
         } else {
             setActiveSwatch(item._box.color);
             colorSwatches.style.display = '';
             labelPosBtn.style.display = '';
-            visibilityBtn.style.display = '';
-            inspectorName.style.paddingRight = '';
             visibilityBtn.classList.toggle('hidden-state', !item._box.visible);
+            visibilityBtn.disabled = !!item._box.targets?.v;
             updateLabelPosBtn(item._box);
+            populateDimTargets(item._box);
+            updateInspectorDimensions();
         }
-        inspector.style.display = '';
+        inspector.style.display = item._box.isScreen ? 'none' : '';
     } else {
         dupBtn.style.display = 'none';
         inspectorName.value = '';
         inspectorName.disabled = true;
-        inspectorName.style.paddingRight = '';
         setActiveSwatch(null);
         colorSwatches.style.display = '';
-        labelPosRow.style.display = '';
-        visibilityBtn.style.display = '';
+        labelPosBtn.style.display = '';
         inspector.style.display = 'none';
     }
     drawView();
@@ -186,13 +184,102 @@ function focusBox(box) {
 
 visibilityBtn.addEventListener('click', () => {
     const item = getSelected();
-    if (!item) return;
+    if (!item || item._box.targets?.v) return;
     item._box.visible = !item._box.visible;
     item.classList.toggle('hidden', !item._box.visible);
     item.querySelector('button:first-child').classList.toggle('hidden-state', !item._box.visible);
     visibilityBtn.classList.toggle('hidden-state', !item._box.visible);
+    syncVisibilityTargets();
     drawView();
 });
+
+const DIM_KEYS = ['X', 'Y', 'W', 'H'];
+
+function populateDimTargets(selectedBox) {
+    for (const dim of ['V', ...DIM_KEYS]) {
+        const sel = document.getElementById('target' + dim);
+        const current = selectedBox.targets?.[dim.toLowerCase()];
+        sel.innerHTML = '';
+        const none = document.createElement('option');
+        none.textContent = '—';
+        none._targetBox = null;
+        sel.appendChild(none);
+        for (const b of boxes) {
+            if (b === selectedBox || b.isScreen) continue;
+            const opt = document.createElement('option');
+            opt.textContent = b.name;
+            opt._targetBox = b;
+            if (b === current) opt.selected = true;
+            sel.appendChild(opt);
+        }
+    }
+}
+
+function syncVisibilityTargets() {
+    for (const b of boxes) {
+        if (!b.targets?.v) continue;
+        const newVisible = b.targets.v.visible;
+        if (b.visible === newVisible) continue;
+        b.visible = newVisible;
+        const listItem = [...boxList.querySelectorAll('.box-item')].find(i => i._box === b);
+        if (listItem) {
+            listItem.classList.toggle('hidden', !newVisible);
+            const eyeBtn = listItem.querySelector('button:first-child');
+            if (eyeBtn) eyeBtn.classList.toggle('hidden-state', !newVisible);
+        }
+    }
+    const selected = getSelected();
+    if (selected?._box && !selected._box.isScreen) {
+        visibilityBtn.classList.toggle('hidden-state', !selected._box.visible);
+    }
+}
+
+document.getElementById('targetV').addEventListener('change', e => {
+    const item = getSelected();
+    if (!item || item._box.isScreen) return;
+    if (!item._box.targets) item._box.targets = {};
+    const target = e.target.selectedOptions[0]._targetBox;
+    item._box.targets.v = target;
+    visibilityBtn.disabled = !!target;
+    if (target) {
+        item._box.visible = target.visible;
+        item.classList.toggle('hidden', !item._box.visible);
+        visibilityBtn.classList.toggle('hidden-state', !item._box.visible);
+    }
+    drawView();
+});
+
+function updateInspectorDimensions() {
+    const item = getSelected();
+    if (!item || item._box.isScreen) return;
+    const b = item._box;
+    document.getElementById('inputX').value = Math.round(b.x);
+    document.getElementById('inputY').value = Math.round(b.y);
+    document.getElementById('inputW').value = Math.round(b.w);
+    document.getElementById('inputH').value = Math.round(b.h);
+}
+
+for (const dim of DIM_KEYS) {
+    document.getElementById('input' + dim).addEventListener('input', e => {
+        const item = getSelected();
+        if (!item || item._box.isScreen) return;
+        const val = parseFloat(e.target.value.replace(',', '.'));
+        if (isNaN(val)) return;
+        const b = item._box;
+        if      (dim === 'X') b.x = val;
+        else if (dim === 'Y') b.y = val;
+        else if (dim === 'W') b.w = Math.max(MIN_BOX_SIZE, val);
+        else if (dim === 'H') b.h = Math.max(MIN_BOX_SIZE, val);
+        drawView();
+    });
+
+    document.getElementById('target' + dim).addEventListener('change', e => {
+        const item = getSelected();
+        if (!item || item._box.isScreen) return;
+        if (!item._box.targets) item._box.targets = {};
+        item._box.targets[dim.toLowerCase()] = e.target.selectedOptions[0]._targetBox;
+    });
+}
 
 function updateLabelPosBtn(box) {
     labelPosBtn.textContent = box.labelBottom ? '▼' : '▲';
@@ -226,7 +313,7 @@ addBtn.addEventListener('click', () => {
     const maxOffset = Math.min(w - 120, h - 80) - 40;
     const offset = maxOffset > 0 ? (boxes.length * 20) % maxOffset : 0;
     const color = BOX_COLORS[0];
-    const boxData = { name: `Box ${boxCount}`, x: 20 + offset, y: 20 + offset, w: 120, h: 80, visible: true, color, labelBottom: false };
+    const boxData = { name: `Box ${boxCount}`, x: 20 + offset, y: 20 + offset, w: 120, h: 80, visible: true, color, labelBottom: false, targets: {} };
     boxes.push(boxData);
     const item = createItem(boxData);
     boxList.append(item);

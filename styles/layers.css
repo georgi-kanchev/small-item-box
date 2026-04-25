@@ -103,14 +103,13 @@
 
 #labelPosBtn {
     position: absolute;
-    right: 26px;
+    right: 0;
     top: 0;
     bottom: 0;
     width: 26px;
     padding: 0;
-    border: none;
-    border-left: 1px solid var(--border-color);
-    border-radius: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 0 3px 3px 0;
     background: #111;
     font-size: 14px;
     font-weight: 900;
@@ -124,16 +123,13 @@
 }
 
 #visibilityBtn {
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 26px;
+    width: 100%;
+    height: 24px;
     padding: 0;
-    border: none;
-    border-left: 1px solid var(--border-color);
-    border-radius: 0 3px 3px 0;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
     background: #111;
+    position: relative;
 }
 
 #visibilityBtn:hover {
@@ -150,13 +146,18 @@
     content: '';
     position: absolute;
     top: 50%;
-    left: 4px;
-    right: 4px;
+    left: 50%;
+    width: 14px;
     height: 1.5px;
     background: #ccc;
-    transform: translateY(-50%) rotate(-40deg);
+    transform: translate(-50%, -50%) rotate(-40deg);
     border-radius: 1px;
     pointer-events: none;
+}
+
+#visibilityBtn:disabled {
+    opacity: 0.35;
+    cursor: default;
 }
 
 .inspector input {
@@ -166,10 +167,13 @@
     color: var(--text-main);
     font-size: 13px;
     padding: 4px 6px;
-    padding-right: 56px;
     outline: none;
     width: 100%;
     box-sizing: border-box;
+}
+
+#inspectorName {
+    padding-right: 30px;
 }
 
 .inspector input:focus {
@@ -189,6 +193,86 @@
     font-size: 11px;
     padding: 2px 7px;
     height: 22px;
+}
+
+.name-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.dim-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    border-top: 1px solid #252525;
+    padding-top: 8px;
+    margin-top: 2px;
+}
+
+.dim-row {
+    display: grid;
+    grid-template-columns: 12px 1fr 1fr;
+    gap: 4px;
+    align-items: center;
+}
+
+.dim-label {
+    font-size: 11px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: center;
+}
+
+.dim-col-label {
+    font-size: 10px;
+    color: #444;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-align: center;
+}
+
+.dim-target {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    background: #111;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    color: var(--text-main);
+    font-size: 11px;
+    padding: 0 4px;
+    height: 24px;
+    outline: none;
+    cursor: pointer;
+    color-scheme: dark;
+    user-select: auto;
+    -webkit-user-select: auto;
+}
+
+.dim-target:focus {
+    border-color: #555;
+}
+
+.dim-input {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    background: #111;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    color: var(--text-main);
+    font-size: 12px;
+    padding: 0 5px;
+    height: 24px;
+    outline: none;
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+.dim-input:focus {
+    border-color: #555;
 }
 
 .color-swatches {

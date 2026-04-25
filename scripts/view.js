@@ -154,7 +154,7 @@ canvas.addEventListener('mousedown', (e) => {
             resizeStart = { mouseX: world.x, mouseY: world.y, box: { ...selectedBox } };
         } else {
             const hit = boxes.findLast(b =>
-                !b.isScreen &&
+                !b.isScreen && b.visible &&
                 world.x >= b.x && world.x <= b.x + b.w &&
                 world.y >= b.y && world.y <= b.y + b.h
             );
@@ -188,6 +188,7 @@ window.addEventListener('mousemove', (e) => {
             applyResize(box, resizeHandle, dx, dy, resizeStart.box);
             snapResize(box, resizeHandle);
             canvas.style.cursor = HANDLE_CURSORS[resizeHandle];
+            updateInspectorDimensions();
             drawView();
         }
     } else if (isDragging) {
@@ -198,6 +199,7 @@ window.addEventListener('mousemove', (e) => {
             box.x = world.x - dragOffset.x;
             box.y = world.y - dragOffset.y;
             snapDrag(box);
+            updateInspectorDimensions();
             drawView();
         }
     }
@@ -218,7 +220,7 @@ canvas.addEventListener('mousemove', (e) => {
         canvas.style.cursor = HANDLE_CURSORS[handle];
     } else {
         const hit = boxes.findLast(b =>
-            !b.isScreen &&
+            !b.isScreen && b.visible &&
             world.x >= b.x && world.x <= b.x + b.w &&
             world.y >= b.y && world.y <= b.y + b.h
         ) ?? null;
@@ -325,7 +327,7 @@ function drawView() {
         const c = box.color ?? '#5b9bd9';
         const isHovered = box === hoveredBox;
 
-        if (!box.visible) ctx.globalAlpha = 0.2;
+        if (!box.visible) continue;
 
         ctx.fillStyle = '#1c1c1c';
         ctx.fillRect(box.x, box.y, box.w, box.h);
@@ -336,23 +338,19 @@ function drawView() {
         ctx.strokeStyle = isSelected ? 'rgba(255,255,255,0.9)' : hexToRgba(c, isHovered ? 0.7 : 0.45);
         ctx.lineWidth = (isSelected ? 1.5 : 1) / camera.zoom;
         ctx.strokeRect(box.x, box.y, box.w, box.h);
-
-        if (!box.visible) ctx.globalAlpha = 1;
     }
 
     // pass 2: labels always on top
     for (const box of boxes) {
-        if (box.isScreen) continue;
+        if (box.isScreen || !box.visible) continue;
         const c = box.color ?? '#5b9bd9';
         const isSelected = box === selectedBox;
-        if (!box.visible) ctx.globalAlpha = 0.2;
         const labelY = box.labelBottom
             ? box.y + box.h - 4 / camera.zoom
             : box.y + 14 / camera.zoom;
         ctx.fillStyle = hexToRgba(c, isSelected ? 0.9 : 0.6);
         ctx.font = `${11 / camera.zoom}px 'Segoe UI', sans-serif`;
         ctx.fillText(box.name, box.x + 4 / camera.zoom, labelY);
-        if (!box.visible) ctx.globalAlpha = 1;
     }
 
     // snap lines

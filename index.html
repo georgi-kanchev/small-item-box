@@ -51,14 +51,47 @@
                     </div>
                     <div class="box-list" id="palette"></div>
                     <div class="inspector" id="inspector" style="display:none">
-                        <div class="inspector-name-row">
-                            <div class="name-input-wrap">
-                                <input type="text" id="inspectorName" placeholder="Name" disabled>
-                                <button id="labelPosBtn" title="Toggle label position">▲</button>
-                                <button id="visibilityBtn">👁️</button>
+                        <div class="name-group">
+                            <div id="colorSwatches" class="color-swatches"></div>
+                            <div class="inspector-name-row">
+                                <div class="name-input-wrap">
+                                    <input type="text" id="inspectorName" placeholder="Name" disabled>
+                                    <button id="labelPosBtn" title="Toggle label position">▲</button>
+                                </div>
                             </div>
                         </div>
-                        <div id="colorSwatches" class="color-swatches"></div>
+                        <div class="dim-rows">
+                            <div class="dim-row dim-header">
+                                <span class="dim-label"></span>
+                                <span class="dim-col-label">Target</span>
+                                <span class="dim-col-label">Value</span>
+                            </div>
+                            <div class="dim-row">
+                                <span class="dim-label">V</span>
+                                <select id="targetV" class="dim-target"></select>
+                                <button id="visibilityBtn">👁️</button>
+                            </div>
+                            <div class="dim-row">
+                                <span class="dim-label">X</span>
+                                <select id="targetX" class="dim-target"></select>
+                                <input id="inputX" class="dim-input" type="text">
+                            </div>
+                            <div class="dim-row">
+                                <span class="dim-label">Y</span>
+                                <select id="targetY" class="dim-target"></select>
+                                <input id="inputY" class="dim-input" type="text">
+                            </div>
+                            <div class="dim-row">
+                                <span class="dim-label">W</span>
+                                <select id="targetW" class="dim-target"></select>
+                                <input id="inputW" class="dim-input" type="text">
+                            </div>
+                            <div class="dim-row">
+                                <span class="dim-label">H</span>
+                                <select id="targetH" class="dim-target"></select>
+                                <input id="inputH" class="dim-input" type="text">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </aside>
