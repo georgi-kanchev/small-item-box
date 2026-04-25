@@ -13,16 +13,17 @@ let activeSnapY = null;
 const MIN_BOX_SIZE = 4;
 const SNAP_PX = 8; // screen-space snap threshold
 
-function evalFormula(expr, box, targetBox, depth = 0) {
-    if (depth > 8) return 0;
+function evalFormula(expr, box, targetBox, depth = 0, forbidden = null) {
+    if (depth > 8) return null;
     if (expr === null || expr === undefined || String(expr).trim() === '') return null;
     if (typeof expr === 'number') return expr;
 
     const { w: sw, h: sh } = getViewSize();
     let t = { x: 0, y: 0, w: 0, h: 0, visible: false };
-    if (targetBox) {
-        const tr = resolveBox(targetBox, depth + 1);
-        t = { x: tr.x, y: tr.y, w: tr.w, h: tr.h, visible: !!targetBox.visible };
+    const effectiveTarget = forbidden?.has(targetBox) ? null : targetBox;
+    if (effectiveTarget) {
+        const tr = resolveBox(effectiveTarget, depth + 1, forbidden);
+        t = { x: tr.x, y: tr.y, w: tr.w, h: tr.h, visible: !!effectiveTarget.visible };
     }
 
     const mx = box.x ?? 0, my = box.y ?? 0, mw = box.w ?? 0, mh = box.h ?? 0;
@@ -56,13 +57,13 @@ function evalFormula(expr, box, targetBox, depth = 0) {
     }
 }
 
-function resolveBox(box, depth = 0) {
+function resolveBox(box, depth = 0, forbidden = null) {
     const f = box.formulas ?? {};
     return {
-        x: evalFormula(f.x, box, box.targets?.x, depth) ?? box.x,
-        y: evalFormula(f.y, box, box.targets?.y, depth) ?? box.y,
-        w: evalFormula(f.w, box, box.targets?.w, depth) ?? box.w,
-        h: evalFormula(f.h, box, box.targets?.h, depth) ?? box.h,
+        x: evalFormula(f.x, box, box.targets?.x, depth, forbidden) ?? box.x,
+        y: evalFormula(f.y, box, box.targets?.y, depth, forbidden) ?? box.y,
+        w: evalFormula(f.w, box, box.targets?.w, depth, forbidden) ?? box.w,
+        h: evalFormula(f.h, box, box.targets?.h, depth, forbidden) ?? box.h,
     };
 }
 
@@ -120,10 +121,11 @@ function applyResize(box, handle, dx, dy, start) {
 
 function getSnapTargets(excludeBox) {
     const xs = [], ys = [];
+    const forbidden = new Set([excludeBox]);
     for (const b of boxes) {
         if (b === excludeBox) continue;
         if (!b.visible && !b.isScreen) continue;
-        const r = resolveBox(b);
+        const r = resolveBox(b, 0, forbidden);
         xs.push(r.x, r.x + r.w / 2, r.x + r.w);
         ys.push(r.y, r.y + r.h / 2, r.y + r.h);
     }

@@ -259,6 +259,19 @@ function updateInspectorDimensions() {
     document.getElementById('inputY').value = f.y ?? Math.round(b.y);
     document.getElementById('inputW').value = f.w ?? Math.round(b.w);
     document.getElementById('inputH').value = f.h ?? Math.round(b.h);
+    syncTargetVisibility(b);
+}
+
+function syncTargetVisibility(b) {
+    const f = b.formulas ?? {};
+    for (const dim of DIM_KEYS) {
+        const formula = f[dim.toLowerCase()] ?? '';
+        const show = /\bt[a-z]/i.test(formula);
+        const sel = document.getElementById('target' + dim);
+        const row = sel.closest('.dim-row');
+        sel.style.display = show ? '' : 'none';
+        row.classList.toggle('no-target', !show);
+    }
 }
 
 for (const dim of DIM_KEYS) {
@@ -268,6 +281,7 @@ for (const dim of DIM_KEYS) {
         const b = item._box;
         if (!b.formulas) b.formulas = {};
         b.formulas[dim.toLowerCase()] = e.target.value;
+        syncTargetVisibility(b);
         drawView();
     });
 

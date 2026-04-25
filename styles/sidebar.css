@@ -241,6 +241,10 @@
     align-items: center;
 }
 
+.dim-row.no-target {
+    grid-template-columns: 12px 1fr;
+}
+
 .dim-label {
     font-size: 11px;
     color: #666;
