@@ -380,6 +380,18 @@ canvas.addEventListener('mouseleave', () => {
     drawView();
 });
 
+function clampBoxScroll(box) {
+    if (!box.scrollX && !box.scrollY) return;
+    const r = resolveBox(box);
+    const laid = resolveItems(box);
+    const visible = laid.filter(i => i.item.visible !== false);
+    if (!visible.length) { box.scrollX = 0; box.scrollY = 0; return; }
+    const contentW = Math.max(...visible.map(i => i.x + i.w)) - r.x;
+    const contentH = Math.max(...visible.map(i => i.y + i.h)) - r.y;
+    box.scrollX = Math.max(0, Math.min(Math.max(0, contentW - r.w), box.scrollX ?? 0));
+    box.scrollY = Math.max(0, Math.min(Math.max(0, contentH - r.h), box.scrollY ?? 0));
+}
+
 canvas.addEventListener('wheel', (e) => {
     const hov = hoveredBox;
     if (hov && hov.items?.length) {

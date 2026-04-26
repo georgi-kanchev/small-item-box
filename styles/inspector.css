@@ -287,6 +287,39 @@
     border-color: #fff;
 }
 
+#itemVisBtn {
+    width: 28px;
+    height: 24px;
+    padding: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    background: #111;
+    position: relative;
+}
+
+#itemVisBtn:hover {
+    background: #1c1c1c;
+    box-shadow: none;
+    border-color: #555;
+}
+
+#itemVisBtn.hidden-state {
+    opacity: 0.4;
+}
+
+#itemVisBtn.hidden-state::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 14px;
+    height: 1.5px;
+    background: #ccc;
+    transform: translate(-50%, -50%) rotate(-40deg);
+    border-radius: 1px;
+    pointer-events: none;
+}
+
 .break-wrap {
     display: flex;
     gap: 4px;

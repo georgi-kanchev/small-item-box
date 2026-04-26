@@ -143,6 +143,7 @@ itemBreakBtn.addEventListener('click', () => {
     itemBreakBtn.classList.toggle('active', !!itemData.break);
     itemBreakInp.style.display = itemData.break ? '' : 'none';
     if (itemData.break) itemBreakInp.value = itemData.formulas.break;
+    clampBoxScroll(selectedItemState.boxData);
     drawView();
 });
 
