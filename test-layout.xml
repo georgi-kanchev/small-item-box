@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layout>
+  <boxes>
+    <box id="0" name="Panel" namePos="br" col="#909098" vis="1"
+        rect="93.17 78.17 372.67 312.67" expr="sux-(sw/1.5)/2 sly-(sh/1.5)/2 sw/1.5 sh/1.5" tar="   "
+        itSz="40 20" itSp="0 0" itGap="0" itBr="0" itAl="0 0" />
+    <box id="1" name="Description" namePos="tl" col="#18b850" vis="1"
+        rect="93.17 78.17 372.67 27.89" expr="tx ty tw mh" tar="0 0 0 "
+        itSz="40 oh/2" itSp="0 0" itGap="0" itBr="0" itAl="0.5 0.5" />
+    <box id="2" name="Tabs" namePos="bl" col="#7cc820" vis="1"
+        rect="93.17 106.06 372.67 20.09" expr="tx tdy tw mh" tar="0 1 0 "
+        itSz="40 oh-10" itSp="0 0" itGap="5" itBr="0" itAl="0.5 0.5" />
+    <box id="3" name="Units" namePos="bl" col="#2080f0" vis="1"
+        rect="93.17 126.15 372.67 247.67" expr="tx tdy tw th-65" tar="0 2 0 0"
+        itSz="ow/3 40" itSp="0 0" itGap="0" itBr="0" itAl="0 0" />
+    <box id="4" name="Buttons" namePos="bl" col="#e84040" vis="1"
+        rect="93.17 373.81 372.67 17.02" expr="tx tdy tw mh" tar="0 3 0 "
+        itSz="40 20" itSp="0 0" itGap="0" itBr="0" itAl="0.5 0.5" />
+  </boxes>
+  <items>
+    <item id="0" boxId="1" name="Victory" vis="1" rect="0 0 40 13.95" expr="mx my mw mh" br="0" brFormula="" />
+    <item id="1" boxId="1" name="(4 rounds)" vis="1" rect="0 13.94 40 6.95" expr="mx my mw mh-7" br="1" brFormula="mb" />
+    <item id="2" boxId="2" name="Statistics" vis="1" rect="0 0 40 10.09" expr="mx my mw mh" br="0" brFormula="" />
+    <item id="3" boxId="2" name="Loot" vis="1" rect="45 0 40 10.09" expr="mx my mw mh" br="0" brFormula="" />
+    <item id="4" boxId="3" name="Unit 1" vis="1" rect="0 0 124.22 40" expr="mx my mw mh" br="0" brFormula="" />
+    <item id="5" boxId="3" name="Unit 2" vis="1" rect="124.22 0 124.22 40" expr="mx my mw mh" br="0" brFormula="" />
+    <item id="6" boxId="3" name="Unit 3" vis="1" rect="248.44 0 124.22 40" expr="mx my mw mh" br="0" brFormula="" />
+    <item id="7" boxId="3" name="Unit 4" vis="1" rect="0 40 124.22 40" expr="mx my mw mh" br="1" brFormula="mb" />
+    <item id="8" boxId="3" name="Unit 5" vis="1" rect="124.22 40 124.22 40" expr="mx my mw mh" br="0" brFormula="" />
+    <item id="9" boxId="3" name="Unit 6" vis="1" rect="248.44 40 124.22 40" expr="mx my mw mh" br="0" brFormula="" />
+    <item id="10" boxId="3" name="Unit 7" vis="1" rect="0 80 124.22 40" expr="mx my mw mh" br="1" brFormula="mb" />
+    <item id="11" boxId="3" name="Unit 8" vis="1" rect="124.22 80 124.22 40" expr="mx my mw mh" br="0" brFormula="" />
+    <item id="12" boxId="3" name="Unit 9" vis="1" rect="248.44 80 124.22 40" expr="mx my mw mh" br="0" brFormula="" />
+    <item id="13" boxId="3" name="Unit 10" vis="1" rect="0 120 124.22 40" expr="mx my mw mh" br="1" brFormula="mb" />
+    <item id="14" boxId="3" name="Unit 11" vis="1" rect="124.22 120 124.22 40" expr="mx my mw mh" br="0" brFormula="" />
+    <item id="15" boxId="3" name="Unit 12" vis="1" rect="248.44 120 124.22 40" expr="mx my mw mh" br="0" brFormula="" />
+    <item id="16" boxId="3" name="Unit 13" vis="1" rect="0 160 124.22 40" expr="mx my mw mh" br="1" brFormula="mb" />
+    <item id="17" boxId="3" name="Unit 14" vis="1" rect="124.22 160 124.22 40" expr="mx my mw mh" br="0" brFormula="" />
+    <item id="18" boxId="3" name="Unit 15" vis="1" rect="248.44 160 124.22 40" expr="mx my mw mh" br="0" brFormula="" />
+    <item id="19" boxId="4" name="Leave" vis="1" rect="0 0 40 20" expr="mx my mw mh" br="0" brFormula="" />
+  </items>
+</layout>
