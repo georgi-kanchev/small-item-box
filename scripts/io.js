@@ -88,7 +88,7 @@ function importXml(text) {
         const hasBreak = el.getAttribute('br') === '1';
         const formulas = {};
         ['x','y','w','h'].forEach((dim, i) => { if (expr[i]) formulas[dim] = expr[i]; });
-        if (hasBreak) formulas.break = el.getAttribute('brFormula') ?? '';
+        if (hasBreak) formulas.break = el.getAttribute('brExpr') ?? '';
         box.items.push({
             name:    el.getAttribute('name') ?? '',
             visible: el.getAttribute('vis') !== '0',
@@ -173,7 +173,7 @@ function buildXml() {
         resolveItems(box).forEach(({ item, x, y, w, h }) => {
             const f = item.formulas ?? {};
             lines.push(
-                `    <item id="${itemId++}" boxId="${boxId}" name=${xmlAttr(item.name)} vis="${item.visible !== false ? 1 : 0}" rect="${fmt(x - br.x)} ${fmt(y - br.y)} ${fmt(w)} ${fmt(h)}" expr=${xmlAttr(`${fmtF(f.x)} ${fmtF(f.y)} ${fmtF(f.w)} ${fmtF(f.h)}`)} br="${item.break ? 1 : 0}" brFormula=${xmlAttr(fmtF(f.break))} />`,
+                `    <item id="${itemId++}" boxId="${boxId}" name=${xmlAttr(item.name)} vis="${item.visible !== false ? 1 : 0}" rect="${fmt(x - br.x)} ${fmt(y - br.y)} ${fmt(w)} ${fmt(h)}" expr=${xmlAttr(`${fmtF(f.x)} ${fmtF(f.y)} ${fmtF(f.w)} ${fmtF(f.h)}`)} br="${item.break ? 1 : 0}" brExpr=${xmlAttr(fmtF(f.break))} />`,
             );
         });
     });
