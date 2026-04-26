@@ -368,6 +368,31 @@ canvas.addEventListener('mouseleave', () => {
 });
 
 canvas.addEventListener('wheel', (e) => {
+    const hov = hoveredBox;
+    if (hov && hov.items?.length) {
+        const r = resolveBox(hov);
+        const laid = resolveItems(hov);
+        const visible = laid.filter(i => i.item.visible !== false);
+        if (visible.length) {
+            const contentW = Math.max(...visible.map(i => i.x + i.w)) - r.x;
+            const contentH = Math.max(...visible.map(i => i.y + i.h)) - r.y;
+            const hasX = contentW > r.w + 0.5;
+            const hasY = contentH > r.h + 0.5;
+            const scrollH = e.shiftKey ? hasX : (!hasY && hasX);
+            if (scrollH) {
+                e.preventDefault();
+                hov.scrollX = Math.max(0, Math.min(contentW - r.w, (hov.scrollX ?? 0) + e.deltaY * 0.05));
+                drawView();
+                return;
+            }
+            if (hasY && !e.shiftKey) {
+                e.preventDefault();
+                hov.scrollY = Math.max(0, Math.min(contentH - r.h, (hov.scrollY ?? 0) + e.deltaY * 0.05));
+                drawView();
+                return;
+            }
+        }
+    }
     handleZoom(e, canvas);
     drawView();
 }, { passive: false });
@@ -470,11 +495,18 @@ function drawView() {
         if (box.isScreen || !box.visible || !box.items?.length) continue;
         const r = resolveBox(box);
         const c = box.color ?? '#5b9bd9';
+        const isBoxSelected = box === selectedBox;
+        const laid = resolveItems(box);
+
+        const scrollX = box.scrollX ?? 0;
+        const scrollY = box.scrollY ?? 0;
+
         ctx.save();
         ctx.beginPath();
         ctx.rect(r.x, r.y, r.w, r.h);
         ctx.clip();
-        for (const { item, x, y, w, h } of resolveItems(box)) {
+        ctx.translate(-scrollX, -scrollY);
+        for (const { item, x, y, w, h } of laid) {
             if (!item.visible) continue;
             const isSelectedItem = selItemState?.itemData === item;
             ctx.fillStyle = hexToRgba(c, isSelectedItem ? 0.35 : 0.18);
@@ -482,11 +514,45 @@ function drawView() {
             ctx.strokeStyle = hexToRgba(c, isSelectedItem ? 1 : 0.6);
             ctx.lineWidth = (isSelectedItem ? 1.5 : 1) / camera.zoom;
             ctx.strokeRect(x, y, w, h);
-            ctx.fillStyle = hexToRgba(c, isSelectedItem ? 0.95 : 0.65);
+            ctx.fillStyle = hexToRgba(c, isSelectedItem ? 1 : 0.9);
             ctx.font = `${10 / camera.zoom}px 'Segoe UI', sans-serif`;
             ctx.fillText(item.name, x + 3 / camera.zoom, y + 12 / camera.zoom);
         }
         ctx.restore();
+
+        // scroll handles — drawn after restore so they sit on top of the box, unclipped
+        const visible = laid.filter(i => i.item.visible !== false);
+        if (!visible.length) continue;
+        const contentW = Math.max(...visible.map(i => i.x + i.w)) - r.x;
+        const contentH = Math.max(...visible.map(i => i.y + i.h)) - r.y;
+        const isHovered = box === hoveredBox;
+        const ht = 3 / camera.zoom;
+        const hm = 2 / camera.zoom;
+
+        if (contentW > r.w + 0.5) {
+            const maxSX = contentW - r.w;
+            const sx = Math.min(scrollX, maxSX);
+            const hw = r.w * (r.w / contentW);
+            const handleX = r.x + (sx / maxSX) * (r.w - hw);
+            if (isHovered) {
+                ctx.fillStyle = hexToRgba(c, 0.12);
+                ctx.fillRect(r.x, r.y + r.h - ht - hm, r.w, ht);
+            }
+            ctx.fillStyle = hexToRgba(c, isHovered ? 0.7 : isBoxSelected ? 0.55 : 0.3);
+            ctx.fillRect(handleX, r.y + r.h - ht - hm, hw, ht);
+        }
+        if (contentH > r.h + 0.5) {
+            const maxSY = contentH - r.h;
+            const sy = Math.min(scrollY, maxSY);
+            const hh = r.h * (r.h / contentH);
+            const handleY = r.y + (sy / maxSY) * (r.h - hh);
+            if (isHovered) {
+                ctx.fillStyle = hexToRgba(c, 0.12);
+                ctx.fillRect(r.x + r.w - ht - hm, r.y, ht, r.h);
+            }
+            ctx.fillStyle = hexToRgba(c, isHovered ? 0.7 : isBoxSelected ? 0.55 : 0.3);
+            ctx.fillRect(r.x + r.w - ht - hm, handleY, ht, hh);
+        }
     }
 
     // pass 2: labels always on top
@@ -495,12 +561,12 @@ function drawView() {
         const r = resolveBox(box);
         const c = box.color ?? '#5b9bd9';
         const isSelected = box === selectedBox;
-        const labelY = r.y + r.h - 4 / camera.zoom;
-        ctx.fillStyle = hexToRgba(c, isSelected ? 0.9 : 0.6);
+        const labelY = r.y + r.h - 8 / camera.zoom;
+        ctx.fillStyle = hexToRgba(c, isSelected ? 1 : 0.85);
         ctx.font = `${11 / camera.zoom}px 'Segoe UI', sans-serif`;
         if (box.labelRight) {
             ctx.textAlign = 'right';
-            ctx.fillText(box.name, r.x + r.w - 4 / camera.zoom, labelY);
+            ctx.fillText(box.name, r.x + r.w - 10 / camera.zoom, labelY);
             ctx.textAlign = 'left';
         } else {
             ctx.fillText(box.name, r.x + 4 / camera.zoom, labelY);
