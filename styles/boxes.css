@@ -1,0 +1,132 @@
+.box-item {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 4px 6px;
+    background: color-mix(in srgb, var(--item-color, transparent) 10%, #1e1e1e);
+    border-bottom: 1px solid #111;
+    cursor: pointer;
+}
+
+.box-item:last-child {
+    border-bottom: none;
+}
+
+.box-item .box-name {
+    flex-grow: 1;
+    font-size: 13px;
+    color: #cecece;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+.box-item:hover,
+.box-item.list-hovered {
+    background: color-mix(in srgb, var(--item-color, transparent) 13%, #252525);
+}
+
+.box-item.selected {
+    background: color-mix(in srgb, var(--item-color, transparent) 16%, #2a2a2a);
+}
+
+.box-item.selected:hover,
+.box-item.selected.list-hovered {
+    background: color-mix(in srgb, var(--item-color, transparent) 22%, #323232);
+}
+
+.box-item.hidden {
+    opacity: 0.35;
+}
+
+.box-id {
+    font-size: 9px;
+    color: #888;
+    flex-grow: 0;
+    flex-shrink: 0;
+    user-select: none;
+}
+
+.expand-btn {
+    width: 14px;
+    padding: 0;
+    background: none;
+    border: none;
+    color: #777;
+    font-size: 9px;
+    cursor: pointer;
+    flex-shrink: 0;
+    line-height: 1;
+    box-shadow: none;
+}
+
+.expand-btn:hover {
+    color: #aaa;
+    box-shadow: none;
+}
+
+.box-item button {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.box-item button.hidden-state {
+    opacity: 0.4;
+}
+
+.box-item button.hidden-state::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 4px;
+    right: 4px;
+    height: 1.5px;
+    background: #ccc;
+    transform: translateY(-50%) rotate(-40deg);
+    border-radius: 1px;
+    pointer-events: none;
+}
+
+.box-item[draggable] {
+    cursor: grab;
+}
+
+.drag-ghost {
+    position: fixed;
+    top: -1000px;
+    left: -1000px;
+    background: #2a2a2a;
+    border: 1px solid #555;
+    color: #ccc;
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.box-item.dragging {
+    opacity: 0.35;
+}
+
+.box-item.drag-over-top {
+    box-shadow: 0 -2px 0 var(--accent-color);
+}
+
+.box-item.drag-over-bottom {
+    box-shadow: 0 2px 0 var(--accent-color);
+}
+
+.box-item.screen-item {
+    cursor: default;
+    border-top: 1px solid #1e1e1e;
+}
+
+.box-item.screen-item span {
+    color: #666;
+    font-style: italic;
+}

@@ -1,0 +1,100 @@
+.item-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px 3px 34px;
+    background: #181818;
+    border-bottom: 1px solid #111;
+    cursor: pointer;
+}
+
+.item-row:last-child {
+    border-bottom: none;
+}
+
+.item-row:hover {
+    background: #1f1f1f;
+}
+
+.item-row.selected {
+    background: #252525;
+}
+
+.item-row.selected:hover {
+    background: #2a2a2a;
+}
+
+.item-index {
+    font-size: 9px;
+    color: #555;
+    flex-shrink: 0;
+    user-select: none;
+}
+
+.item-name {
+    flex-grow: 1;
+    font-size: 12px;
+    color: #999;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.del-item-btn {
+    background: none;
+    border: none;
+    color: #555;
+    font-size: 9px;
+    padding: 0;
+    cursor: pointer;
+    line-height: 1;
+    box-shadow: none;
+    flex-shrink: 0;
+}
+
+.del-item-btn:hover {
+    color: #ccc;
+    box-shadow: none;
+}
+
+.items-divider {
+    border-top: 1px solid #252525;
+    margin: 4px 0 6px;
+}
+
+.items-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.items-header-label {
+    font-size: 11px;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+#addItemBtn {
+    font-size: 11px;
+    height: 24px;
+}
+
+.item-config-rows {
+    display: grid;
+    grid-template-columns: auto 1fr auto 1fr;
+    gap: 3px 4px;
+    margin-top: 6px;
+    align-items: center;
+}
+
+.item-config-row {
+    display: contents;
+}
+
+.item-config-label {
+    font-size: 11px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}

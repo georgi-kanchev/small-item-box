@@ -11,6 +11,9 @@
     <link rel="stylesheet" href="styles/view.css">
     <link rel="stylesheet" href="styles/topbar.css">
     <link rel="stylesheet" href="styles/sidebar.css">
+    <link rel="stylesheet" href="styles/boxes.css">
+    <link rel="stylesheet" href="styles/items.css">
+    <link rel="stylesheet" href="styles/inspector.css">
 </head>
 <body>
 
@@ -160,7 +163,30 @@
                         <div class="dim-rows">
                             <div class="dim-row dim-header">
                                 <span id="itemInspId" class="inspector-id"></span>
-                                <span class="dim-col-label">Value</span>
+                                <span class="dim-col-label">Value
+                                    <span class="formula-help-wrap">
+                                        <button id="itemFormulaHelpBtn" class="formula-help-btn">?</button>
+                                        <div id="itemFormulaHelp" class="formula-help-panel">
+                                            Values support math expressions and variables.<br><br>
+                                            Operators: <b>+ - * / ( )</b><br><br>
+                                            Variables:
+                                            <div class="formula-help-cols">
+                                                <table class="formula-help-table">
+                                                    <tr><td>o</td><td>Owner</td></tr>
+                                                </table>
+                                                <table class="formula-help-table">
+                                                    <tr><td>w</td><td>Width</td></tr>
+                                                </table>
+                                                <table class="formula-help-table">
+                                                    <tr><td>h</td><td>Height</td></tr>
+                                                </table>
+                                                <table class="formula-help-table">
+                                                    <tr><td>v</td><td>Visible</td></tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </span>
+                                </span>
                                 <span class="dim-col-label">Target</span>
                             </div>
                             <div class="dim-row">
@@ -207,6 +233,7 @@
 	<script src="scripts/topbar.js"></script>
 	<script src="scripts/sidebar.js"></script>
 	<script src="scripts/boxes.js"></script>
+	<script src="scripts/item.js"></script>
 
 </body>
 </html>

@@ -1,19 +1,25 @@
-formulaHelpBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const isVisible = formulaHelp.classList.contains('visible');
-    if (isVisible) {
-        formulaHelp.classList.remove('visible');
-        return;
-    }
-    const rect = formulaHelpBtn.getBoundingClientRect();
-    formulaHelp.style.left = rect.left + 'px';
-    formulaHelp.style.top = (rect.top - 6) + 'px';
-    formulaHelp.style.transform = 'translateY(-100%)';
-    formulaHelp.classList.add('visible');
-});
+function setupFormulaHelp(btnId, panelId) {
+    const btn = document.getElementById(btnId);
+    const panel = document.getElementById(panelId);
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (panel.classList.contains('visible')) {
+            panel.classList.remove('visible');
+            return;
+        }
+        const rect = btn.getBoundingClientRect();
+        panel.style.left = rect.left + 'px';
+        panel.style.top = (rect.top - 6) + 'px';
+        panel.style.transform = 'translateY(-100%)';
+        panel.classList.add('visible');
+    });
+}
+
+setupFormulaHelp('formulaHelpBtn', 'formulaHelp');
+setupFormulaHelp('itemFormulaHelpBtn', 'itemFormulaHelp');
 
 document.addEventListener('click', () => {
-    formulaHelp.classList.remove('visible');
+    document.querySelectorAll('.formula-help-panel.visible').forEach(p => p.classList.remove('visible'));
 });
 
 dragbar.addEventListener('mousedown', (e) => {
