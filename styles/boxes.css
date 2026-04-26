@@ -40,14 +40,6 @@
     opacity: 0.35;
 }
 
-.box-id {
-    font-size: 9px;
-    color: #888;
-    flex-grow: 0;
-    flex-shrink: 0;
-    user-select: none;
-}
-
 .expand-btn {
     width: 14px;
     padding: 0;
