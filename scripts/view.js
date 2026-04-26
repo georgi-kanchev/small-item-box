@@ -64,8 +64,9 @@ function resolveItems(box) {
 
     return box.items.map(item => {
         if (item.break) {
-            const brkVal = evalItemFormula(item.formulas?.break, ow, oh, ov, os, og, mb, curX, curY, defW, defH) ?? mb;
-            curY += (brkVal > 0 ? brkVal : rowMaxH) + og;
+            const effectiveMb = mb > 0 ? mb : rowMaxH;
+            const brkVal = evalItemFormula(item.formulas?.break, ow, oh, ov, os, og, effectiveMb, curX, curY, defW, defH) ?? effectiveMb;
+            curY += brkVal + og;
             curX = r.x + os;
             rowMaxH = 0;
         }
