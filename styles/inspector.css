@@ -162,6 +162,18 @@
     grid-template-columns: 12px 1fr;
 }
 
+.item-dim-rows {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    row-gap: 3px;
+    column-gap: 4px;
+    align-items: center;
+}
+
+.item-dim-rows .dim-row {
+    display: contents;
+}
+
 .dim-label {
     font-size: 11px;
     color: #666;

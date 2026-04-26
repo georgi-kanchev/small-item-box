@@ -21,7 +21,7 @@ const FORMULA_PARAMS = [
 ];
 const formulaCache = new Map();
 
-const ITEM_FORMULA_PARAMS = ['ow', 'oh', 'ov'];
+const ITEM_FORMULA_PARAMS = ['ow', 'oh', 'ov', 'os', 'og', 'mx', 'my', 'mw', 'mh'];
 const itemFormulaCache = new Map();
 
 function compileItemFormula(expr) {
@@ -32,7 +32,7 @@ function compileItemFormula(expr) {
     }
 }
 
-function evalItemFormula(expr, ow, oh, ov) {
+function evalItemFormula(expr, ow, oh, ov, os, og, mx, my, mw, mh) {
     if (expr === null || expr === undefined || String(expr).trim() === '') return null;
     if (typeof expr === 'number') return expr;
     const key = String(expr).trim();
@@ -40,7 +40,7 @@ function evalItemFormula(expr, ow, oh, ov) {
     const fn = itemFormulaCache.get(key);
     if (!fn) return null;
     try {
-        const result = fn(ow, oh, ov);
+        const result = fn(ow, oh, ov, os, og, mx, my, mw, mh);
         return typeof result === 'number' && isFinite(result) ? result : null;
     } catch {
         return null;
@@ -51,20 +51,24 @@ function resolveItems(box) {
     if (!box.items?.length) return [];
     const r = resolveBox(box);
     const ow = r.w, oh = r.h, ov = box.visible ? 1 : 0;
-    const margin = box.itemMargin ?? 0;
-    const gap = box.itemGap ?? 0;
+    const os = box.itemSpacing ?? 0;
+    const og = box.itemGap ?? 0;
 
-    const laid = [];
-    let curX = r.x + margin;
+    // mw/mh are the box-level defaults; mx/my are each item's natural start position
+    const defW = evalItemFormula(box.itemWidth, ow, oh, ov, os, og, 0, 0, 0, 0) ?? 40;
+    const defH = evalItemFormula(box.itemHeight, ow, oh, ov, os, og, 0, 0, 0, 0) ?? 20;
 
-    for (const item of box.items) {
+    let curX = r.x + os;
+    return box.items.map(item => {
+        const mx = curX, my = r.y + os;
         const f = item.formulas ?? {};
-        const w = evalItemFormula(f.w, ow, oh, ov) ?? 50;
-        const h = evalItemFormula(f.h, ow, oh, ov) ?? 30;
-        laid.push({ item, x: curX, y: r.y + margin, w, h });
-        curX += w + gap;
-    }
-    return laid;
+        const w = evalItemFormula(f.w, ow, oh, ov, os, og, mx, my, defW, defH) ?? defW;
+        const h = evalItemFormula(f.h, ow, oh, ov, os, og, mx, my, defW, defH) ?? defH;
+        const x = evalItemFormula(f.x, ow, oh, ov, os, og, mx, my, defW, defH) ?? mx;
+        const y = evalItemFormula(f.y, ow, oh, ov, os, og, mx, my, defW, defH) ?? my;
+        if (item.visible !== false) curX += w + og;
+        return { item, x, y, w, h };
+    });
 }
 
 function compileFormula(expr) {

@@ -3,7 +3,7 @@ const itemsSection = document.getElementById('itemsSection');
 const itemGapInput = document.getElementById('itemGap');
 const itemWidthInput = document.getElementById('itemWidth');
 const itemHeightInput = document.getElementById('itemHeight');
-const itemMarginInput = document.getElementById('itemMargin');
+const itemSpacingInput = document.getElementById('itemSpacing');
 const itemInspector = document.getElementById('itemInspector');
 const itemInspName = document.getElementById('itemInspName');
 const itemInspId = document.getElementById('itemInspId');
@@ -19,7 +19,6 @@ function syncItemIds(group, boxData) {
 
 function createItemRow(boxData, group, itemData) {
     if (!itemData.formulas) itemData.formulas = {};
-    if (!itemData.targets) itemData.targets = {};
     if (itemData.visible === undefined) itemData.visible = true;
 
     const row = document.createElement('div');
@@ -66,30 +65,8 @@ function selectItemRow(row) {
     itemInspName.value = row._item.name;
     itemInspId.textContent = `#${row._box.items.indexOf(row._item)}`;
     itemVisBtn.classList.toggle('hidden-state', !row._item.visible);
-    itemVisBtn.disabled = !!row._item.targets?.v;
-    populateItemDimTargets(row._item);
     updateItemInspectorDimensions();
     drawView();
-}
-
-function populateItemDimTargets(itemData) {
-    for (const dim of ['V', ...DIM_KEYS]) {
-        const sel = document.getElementById('itemTarget' + dim);
-        const current = itemData.targets?.[dim.toLowerCase()];
-        sel.innerHTML = '';
-        const none = document.createElement('option');
-        none.textContent = '—';
-        none._targetBox = null;
-        sel.appendChild(none);
-        for (const b of boxes) {
-            if (b.isScreen) continue;
-            const opt = document.createElement('option');
-            opt.textContent = b.name;
-            opt._targetBox = b;
-            if (b === current) opt.selected = true;
-            sel.appendChild(opt);
-        }
-    }
 }
 
 function updateItemInspectorDimensions() {
@@ -99,25 +76,12 @@ function updateItemInspectorDimensions() {
     document.getElementById('itemInputY').value = f.y ?? '';
     document.getElementById('itemInputW').value = f.w ?? '';
     document.getElementById('itemInputH').value = f.h ?? '';
-    syncItemTargetVisibility(selectedItemState.itemData);
-}
-
-function syncItemTargetVisibility(itemData) {
-    const f = itemData.formulas ?? {};
-    for (const dim of DIM_KEYS) {
-        const formula = f[dim.toLowerCase()] ?? '';
-        const show = /\bt[a-z]/i.test(formula);
-        const sel = document.getElementById('itemTarget' + dim);
-        const row = sel.closest('.dim-row');
-        sel.style.display = show ? '' : 'none';
-        row.classList.toggle('no-target', !show);
-    }
 }
 
 for (const [input, key, numeric] of [
     [itemWidthInput, 'itemWidth', false],
     [itemHeightInput, 'itemHeight', false],
-    [itemMarginInput, 'itemMargin', true],
+    [itemSpacingInput, 'itemSpacing', true],
     [itemGapInput, 'itemGap', true],
 ]) {
     input.addEventListener('input', () => {
@@ -133,7 +97,7 @@ addItemBtn.addEventListener('click', () => {
     if (!selectedItem || selectedItem._box.isScreen) return;
     const box = selectedItem._box;
     if (!box.items) box.items = [];
-    const itemData = { name: `Item ${box.items.length + 1}`, formulas: { w: box.itemWidth ?? 'ow', h: String(box.itemHeight ?? 100) } };
+    const itemData = { name: `Item ${box.items.length + 1}`, formulas: { w: String(box.itemWidth ?? 40), h: String(box.itemHeight ?? 20) } };
     box.items.push(itemData);
     const group = selectedItem.closest('.box-group');
     const expandBtn = selectedItem.querySelector('.expand-btn');
@@ -143,6 +107,7 @@ addItemBtn.addEventListener('click', () => {
     box.collapsed = false;
     group._children.append(createItemRow(box, group, itemData));
     syncItemIds(group, box);
+    drawView();
 });
 
 itemInspName.addEventListener('input', () => {
@@ -153,23 +118,10 @@ itemInspName.addEventListener('input', () => {
 });
 
 itemVisBtn.addEventListener('click', () => {
-    if (!selectedItemState || selectedItemState.itemData.targets?.v) return;
+    if (!selectedItemState) return;
     selectedItemState.itemData.visible = !selectedItemState.itemData.visible;
     selectedItemState.row.classList.toggle('hidden', !selectedItemState.itemData.visible);
     itemVisBtn.classList.toggle('hidden-state', !selectedItemState.itemData.visible);
-    drawView();
-});
-
-document.getElementById('itemTargetV').addEventListener('change', e => {
-    if (!selectedItemState) return;
-    const target = e.target.selectedOptions[0]._targetBox;
-    selectedItemState.itemData.targets.v = target;
-    itemVisBtn.disabled = !!target;
-    if (target) {
-        selectedItemState.itemData.visible = target.visible;
-        selectedItemState.row.classList.toggle('hidden', !selectedItemState.itemData.visible);
-        itemVisBtn.classList.toggle('hidden-state', !selectedItemState.itemData.visible);
-    }
     drawView();
 });
 
@@ -177,11 +129,6 @@ for (const dim of DIM_KEYS) {
     document.getElementById('itemInput' + dim).addEventListener('input', e => {
         if (!selectedItemState) return;
         selectedItemState.itemData.formulas[dim.toLowerCase()] = e.target.value;
-        syncItemTargetVisibility(selectedItemState.itemData);
         drawView();
-    });
-    document.getElementById('itemTarget' + dim).addEventListener('change', e => {
-        if (!selectedItemState) return;
-        selectedItemState.itemData.targets[dim.toLowerCase()] = e.target.selectedOptions[0]._targetBox;
     });
 }

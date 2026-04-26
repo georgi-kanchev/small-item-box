@@ -144,8 +144,8 @@
                                     <input id="itemHeight" class="dim-input" type="text">
                                 </div>
                                 <div class="item-config-row">
-                                    <span class="item-config-label">Margin</span>
-                                    <input id="itemMargin" class="dim-input" type="number" min="0" step="1">
+                                    <span class="item-config-label">Spacing</span>
+                                    <input id="itemSpacing" class="dim-input" type="number" min="0" step="1">
                                     <span class="item-config-label">Gap</span>
                                     <input id="itemGap" class="dim-input" type="number" min="0" step="1">
                                 </div>
@@ -160,7 +160,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="dim-rows">
+                        <div class="dim-rows item-dim-rows">
                             <div class="dim-row dim-header">
                                 <span id="itemInspId" class="inspector-id"></span>
                                 <span class="dim-col-label">Value
@@ -173,46 +173,45 @@
                                             <div class="formula-help-cols">
                                                 <table class="formula-help-table">
                                                     <tr><td>o</td><td>Owner</td></tr>
+                                                    <tr><td>m</td><td>My</td></tr>
                                                 </table>
                                                 <table class="formula-help-table">
                                                     <tr><td>w</td><td>Width</td></tr>
-                                                </table>
-                                                <table class="formula-help-table">
                                                     <tr><td>h</td><td>Height</td></tr>
                                                 </table>
                                                 <table class="formula-help-table">
+                                                    <tr><td>x</td><td>X</td></tr>
+                                                    <tr><td>y</td><td>Y</td></tr>
+                                                </table>
+                                                <table class="formula-help-table">
                                                     <tr><td>v</td><td>Visible</td></tr>
+                                                    <tr><td>s</td><td>Spacing</td></tr>
+                                                    <tr><td>g</td><td>Gap</td></tr>
                                                 </table>
                                             </div>
                                         </div>
                                     </span>
                                 </span>
-                                <span class="dim-col-label">Target</span>
                             </div>
                             <div class="dim-row">
-                                <span class="dim-label">V</span>
+                                <span class="dim-label">Visible</span>
                                 <button id="itemVisBtn">👁️</button>
-                                <select id="itemTargetV" class="dim-target"></select>
                             </div>
                             <div class="dim-row">
                                 <span class="dim-label">X</span>
                                 <input id="itemInputX" class="dim-input" type="text">
-                                <select id="itemTargetX" class="dim-target"></select>
                             </div>
                             <div class="dim-row">
                                 <span class="dim-label">Y</span>
                                 <input id="itemInputY" class="dim-input" type="text">
-                                <select id="itemTargetY" class="dim-target"></select>
                             </div>
                             <div class="dim-row">
-                                <span class="dim-label">W</span>
+                                <span class="dim-label">Width</span>
                                 <input id="itemInputW" class="dim-input" type="text">
-                                <select id="itemTargetW" class="dim-target"></select>
                             </div>
                             <div class="dim-row">
-                                <span class="dim-label">H</span>
+                                <span class="dim-label">Height</span>
                                 <input id="itemInputH" class="dim-input" type="text">
-                                <select id="itemTargetH" class="dim-target"></select>
                             </div>
                         </div>
                     </div>

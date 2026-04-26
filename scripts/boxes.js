@@ -82,6 +82,9 @@ function createItem(boxData) {
         eyeBtn.classList.toggle('hidden-state', !boxData.visible);
         if (item.classList.contains('selected'))
             visibilityBtn.classList.toggle('hidden-state', !boxData.visible);
+        children.querySelectorAll('.item-row').forEach(row => {
+            row.classList.toggle('hidden', !boxData.visible || row._item.visible === false);
+        });
         syncVisibilityTargets();
         drawView();
     });
@@ -195,9 +198,9 @@ function select(item) {
             labelPosBtn.style.display = '';
             itemsSection.style.display = '';
             const b = item._box;
-            itemWidthInput.value = b.itemWidth ?? 'mw';
-            itemHeightInput.value = b.itemHeight ?? 100;
-            itemMarginInput.value = b.itemMargin ?? 0;
+            itemWidthInput.value = b.itemWidth ?? 40;
+            itemHeightInput.value = b.itemHeight ?? 20;
+            itemSpacingInput.value = b.itemSpacing ?? 0;
             itemGapInput.value = b.itemGap ?? 0;
             visibilityBtn.classList.toggle('hidden-state', !item._box.visible);
             visibilityBtn.disabled = !!item._box.targets?.v;
@@ -235,6 +238,9 @@ visibilityBtn.addEventListener('click', () => {
     item.classList.toggle('hidden', !item._box.visible);
     item.querySelector('.eye-btn').classList.toggle('hidden-state', !item._box.visible);
     visibilityBtn.classList.toggle('hidden-state', !item._box.visible);
+    item.closest('.box-group')._children.querySelectorAll('.item-row').forEach(row => {
+        row.classList.toggle('hidden', !item._box.visible || row._item.visible === false);
+    });
     syncVisibilityTargets();
     drawView();
 });
@@ -370,7 +376,7 @@ addBtn.addEventListener('click', () => {
     const maxOffset = Math.min(w - 120, h - 80) - 40;
     const offset = maxOffset > 0 ? (boxes.length * 20) % maxOffset : 0;
     const color = BOX_COLORS[0];
-    const boxData = { name: `Box ${boxCount}`, x: 20 + offset, y: 20 + offset, w: 120, h: 80, visible: true, color, labelBottom: false, targets: {}, formulas: { x: 'mx', y: 'my', w: 'mw', h: 'mh' }, items: [], itemGap: 0, itemWidth: 'ow', itemHeight: 100, itemMargin: 0 };
+    const boxData = { name: `Box ${boxCount}`, x: 20 + offset, y: 20 + offset, w: 120, h: 80, visible: true, color, labelBottom: false, targets: {}, formulas: { x: 'mx', y: 'my', w: 'mw', h: 'mh' }, items: [], itemGap: 0, itemWidth: 40, itemHeight: 20, itemSpacing: 0 };
     boxes.push(boxData);
     const group = createItem(boxData);
     boxList.append(group);
