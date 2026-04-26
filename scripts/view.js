@@ -21,6 +21,52 @@ const FORMULA_PARAMS = [
 ];
 const formulaCache = new Map();
 
+const ITEM_FORMULA_PARAMS = ['ow', 'oh', 'ov'];
+const itemFormulaCache = new Map();
+
+function compileItemFormula(expr) {
+    try {
+        return new Function(...ITEM_FORMULA_PARAMS, '"use strict"; return (' + String(expr).trim() + ')');
+    } catch {
+        return null;
+    }
+}
+
+function evalItemFormula(expr, ow, oh, ov) {
+    if (expr === null || expr === undefined || String(expr).trim() === '') return null;
+    if (typeof expr === 'number') return expr;
+    const key = String(expr).trim();
+    if (!itemFormulaCache.has(key)) itemFormulaCache.set(key, compileItemFormula(key));
+    const fn = itemFormulaCache.get(key);
+    if (!fn) return null;
+    try {
+        const result = fn(ow, oh, ov);
+        return typeof result === 'number' && isFinite(result) ? result : null;
+    } catch {
+        return null;
+    }
+}
+
+function resolveItems(box) {
+    if (!box.items?.length) return [];
+    const r = resolveBox(box);
+    const ow = r.w, oh = r.h, ov = box.visible ? 1 : 0;
+    const margin = box.itemMargin ?? 0;
+    const gap = box.itemGap ?? 0;
+
+    const laid = [];
+    let curX = r.x + margin;
+
+    for (const item of box.items) {
+        const f = item.formulas ?? {};
+        const w = evalItemFormula(f.w, ow, oh, ov) ?? 50;
+        const h = evalItemFormula(f.h, ow, oh, ov) ?? 30;
+        laid.push({ item, x: curX, y: r.y + margin, w, h });
+        curX += w + gap;
+    }
+    return laid;
+}
+
 function compileFormula(expr) {
     const sanitized = String(expr).trim().replace(/\btry\b/gi, 'tRY');
     try {
@@ -412,6 +458,25 @@ function drawView() {
         ctx.strokeStyle = isSelected ? 'rgba(255,255,255,0.9)' : hexToRgba(c, isHovered ? 0.7 : 0.45);
         ctx.lineWidth = (isSelected ? 1.5 : 1) / camera.zoom;
         ctx.strokeRect(r.x, r.y, r.w, r.h);
+    }
+
+    // pass: items
+    const selItemState = typeof selectedItemState !== 'undefined' ? selectedItemState : null;
+    for (const box of boxes) {
+        if (box.isScreen || !box.visible || !box.items?.length) continue;
+        const c = box.color ?? '#5b9bd9';
+        for (const { item, x, y, w, h } of resolveItems(box)) {
+            if (!item.visible) continue;
+            const isSelectedItem = selItemState?.itemData === item;
+            ctx.fillStyle = hexToRgba(c, isSelectedItem ? 0.35 : 0.18);
+            ctx.fillRect(x, y, w, h);
+            ctx.strokeStyle = hexToRgba(c, isSelectedItem ? 1 : 0.6);
+            ctx.lineWidth = (isSelectedItem ? 1.5 : 1) / camera.zoom;
+            ctx.strokeRect(x, y, w, h);
+            ctx.fillStyle = hexToRgba(c, isSelectedItem ? 0.95 : 0.65);
+            ctx.font = `${10 / camera.zoom}px 'Segoe UI', sans-serif`;
+            ctx.fillText(item.name, x + 3 / camera.zoom, y + 12 / camera.zoom);
+        }
     }
 
     // pass 2: labels always on top

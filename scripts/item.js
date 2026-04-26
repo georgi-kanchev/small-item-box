@@ -133,7 +133,7 @@ addItemBtn.addEventListener('click', () => {
     if (!selectedItem || selectedItem._box.isScreen) return;
     const box = selectedItem._box;
     if (!box.items) box.items = [];
-    const itemData = { name: `Item ${box.items.length + 1}` };
+    const itemData = { name: `Item ${box.items.length + 1}`, formulas: { w: box.itemWidth ?? 'ow', h: String(box.itemHeight ?? 100) } };
     box.items.push(itemData);
     const group = selectedItem.closest('.box-group');
     const expandBtn = selectedItem.querySelector('.expand-btn');
