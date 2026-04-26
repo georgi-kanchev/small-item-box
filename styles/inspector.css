@@ -35,6 +35,7 @@
     font-size: 13px;
     color: #555;
     user-select: none;
+    white-space: nowrap;
 }
 
 .name-input-wrap {
@@ -190,6 +191,17 @@
 
 .item-dim-rows .dim-row {
     display: contents;
+}
+
+.item-dim-rows .dim-header {
+    display: flex;
+    grid-column: 1 / -1;
+    align-items: center;
+    position: relative;
+}
+
+.item-dim-rows .dim-header .dim-col-label {
+    flex: 1;
 }
 
 .dim-label {
@@ -401,6 +413,7 @@
 
 .formula-help-cols {
     display: flex;
+    flex-wrap: wrap;
     gap: 16px;
     margin-top: 10px;
 }

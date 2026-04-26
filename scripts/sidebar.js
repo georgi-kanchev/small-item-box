@@ -8,7 +8,9 @@ function setupFormulaHelp(btnId, panelId) {
             return;
         }
         const rect = btn.getBoundingClientRect();
-        panel.style.left = rect.left + 'px';
+        const panelW = parseInt(getComputedStyle(panel).width) || 380;
+        const left = Math.max(8, Math.min(rect.left, window.innerWidth - panelW - 8));
+        panel.style.left = left + 'px';
         panel.style.top = (rect.top - 6) + 'px';
         panel.style.transform = 'translateY(-100%)';
         panel.classList.add('visible');

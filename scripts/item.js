@@ -3,7 +3,8 @@ const itemsSection = document.getElementById('itemsSection');
 const itemGapInput = document.getElementById('itemGap');
 const itemWidthInput = document.getElementById('itemWidth');
 const itemHeightInput = document.getElementById('itemHeight');
-const itemSpacingInput = document.getElementById('itemSpacing');
+const itemSpacingXInput = document.getElementById('itemSpacingX');
+const itemSpacingYInput = document.getElementById('itemSpacingY');
 const itemBreakInput = document.getElementById('itemBreak');
 const itemInspector = document.getElementById('itemInspector');
 const itemInspName = document.getElementById('itemInspName');
@@ -66,7 +67,7 @@ function selectItemRow(row) {
     dupBtn.style.display = 'none';
     itemInspector.style.display = '';
     itemInspName.value = row._item.name;
-    itemInspId.textContent = `#${row._box.items.indexOf(row._item)}`;
+    itemInspId.textContent = `Item #${row._box.items.indexOf(row._item)} in Box #${boxes.indexOf(row._box)}`;
     itemVisBtn.classList.toggle('hidden-state', !row._item.visible);
     itemBreakBtn.classList.toggle('active', !!row._item.break);
     itemBreakInp.style.display = row._item.break ? '' : 'none';
@@ -87,7 +88,8 @@ function updateItemInspectorDimensions() {
 for (const [input, key, numeric] of [
     [itemWidthInput, 'itemWidth', false],
     [itemHeightInput, 'itemHeight', false],
-    [itemSpacingInput, 'itemSpacing', true],
+    [itemSpacingXInput, 'itemSpacingX', true],
+    [itemSpacingYInput, 'itemSpacingY', true],
     [itemGapInput, 'itemGap', true],
     [itemBreakInput, 'itemBreak', true],
 ]) {

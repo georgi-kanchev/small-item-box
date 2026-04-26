@@ -200,7 +200,8 @@ function select(item) {
             const b = item._box;
             itemWidthInput.value = b.itemWidth ?? 40;
             itemHeightInput.value = b.itemHeight ?? 20;
-            itemSpacingInput.value = b.itemSpacing ?? 0;
+            itemSpacingXInput.value = b.itemSpacingX ?? 0;
+            itemSpacingYInput.value = b.itemSpacingY ?? 0;
             itemGapInput.value = b.itemGap ?? 0;
             itemBreakInput.value = b.itemBreak ?? 0;
             visibilityBtn.classList.toggle('hidden-state', !item._box.visible);
@@ -345,14 +346,19 @@ for (const dim of DIM_KEYS) {
     });
 }
 
+const LABEL_POS_CYCLE = ['tl', 'tr', 'br', 'bl'];
+const LABEL_POS_ICON = { tl: '↖', tr: '↗', br: '↘', bl: '↙' };
+
 function updateLabelPosBtn(box) {
-    labelPosBtn.textContent = box.labelRight ? '▶' : '◀';
+    labelPosBtn.textContent = LABEL_POS_ICON[box.labelPos ?? 'bl'];
 }
 
 labelPosBtn.addEventListener('click', () => {
     const item = getSelected();
     if (!item || item._box.isScreen) return;
-    item._box.labelRight = !item._box.labelRight;
+    const cur = item._box.labelPos ?? 'bl';
+    const next = LABEL_POS_CYCLE[(LABEL_POS_CYCLE.indexOf(cur) + 1) % LABEL_POS_CYCLE.length];
+    item._box.labelPos = next;
     updateLabelPosBtn(item._box);
     drawView();
 });
@@ -377,7 +383,7 @@ addBtn.addEventListener('click', () => {
     const maxOffset = Math.min(w - 120, h - 80) - 40;
     const offset = maxOffset > 0 ? (boxes.length * 20) % maxOffset : 0;
     const color = BOX_COLORS[0];
-    const boxData = { name: `Box ${boxCount}`, x: 20 + offset, y: 20 + offset, w: 120, h: 80, visible: true, color, labelRight: false, targets: {}, formulas: { x: 'mx', y: 'my', w: 'mw', h: 'mh' }, items: [], itemGap: 0, itemWidth: 40, itemHeight: 20, itemSpacing: 0, itemBreak: 0 };
+    const boxData = { name: `Box ${boxCount}`, x: 20 + offset, y: 20 + offset, w: 120, h: 80, visible: true, color, labelPos: 'bl', targets: {}, formulas: { x: 'mx', y: 'my', w: 'mw', h: 'mh' }, items: [], itemGap: 0, itemWidth: 40, itemHeight: 20, itemSpacingX: 0, itemSpacingY: 0, itemBreak: 0 };
     boxes.push(boxData);
     const group = createItem(boxData);
     boxList.append(group);

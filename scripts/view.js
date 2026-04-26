@@ -21,7 +21,7 @@ const FORMULA_PARAMS = [
 ];
 const formulaCache = new Map();
 
-const ITEM_FORMULA_PARAMS = ['ow', 'oh', 'ov', 'os', 'og', 'mb', 'mx', 'my', 'mw', 'mh'];
+const ITEM_FORMULA_PARAMS = ['ow', 'oh', 'ov', 'osx', 'osy', 'og', 'mb', 'mx', 'my', 'mw', 'mh'];
 const itemFormulaCache = new Map();
 
 function compileItemFormula(expr) {
@@ -32,7 +32,7 @@ function compileItemFormula(expr) {
     }
 }
 
-function evalItemFormula(expr, ow, oh, ov, os, og, mb, mx, my, mw, mh) {
+function evalItemFormula(expr, ow, oh, ov, osx, osy, og, mb, mx, my, mw, mh) {
     if (expr === null || expr === undefined || String(expr).trim() === '') return null;
     if (typeof expr === 'number') return expr;
     const key = String(expr).trim();
@@ -40,7 +40,7 @@ function evalItemFormula(expr, ow, oh, ov, os, og, mb, mx, my, mw, mh) {
     const fn = itemFormulaCache.get(key);
     if (!fn) return null;
     try {
-        const result = fn(ow, oh, ov, os, og, mb, mx, my, mw, mh);
+        const result = fn(ow, oh, ov, osx, osy, og, mb, mx, my, mw, mh);
         return typeof result === 'number' && isFinite(result) ? result : null;
     } catch {
         return null;
@@ -51,31 +51,32 @@ function resolveItems(box) {
     if (!box.items?.length) return [];
     const r = resolveBox(box);
     const ow = r.w, oh = r.h, ov = box.visible ? 1 : 0;
-    const os = box.itemSpacing ?? 0;
+    const osx = box.itemSpacingX ?? 0;
+    const osy = box.itemSpacingY ?? 0;
     const og = box.itemGap ?? 0;
     const mb = box.itemBreak ?? 0;
 
-    const defW = evalItemFormula(box.itemWidth, ow, oh, ov, os, og, mb, 0, 0, 0, 0) ?? 40;
-    const defH = evalItemFormula(box.itemHeight, ow, oh, ov, os, og, mb, 0, 0, 0, 0) ?? 20;
+    const defW = evalItemFormula(box.itemWidth, ow, oh, ov, osx, osy, og, mb, 0, 0, 0, 0) ?? 40;
+    const defH = evalItemFormula(box.itemHeight, ow, oh, ov, osx, osy, og, mb, 0, 0, 0, 0) ?? 20;
 
-    let curX = r.x + os;
-    let curY = r.y + os;
+    let curX = r.x + osx;
+    let curY = r.y + osy;
     let rowMaxH = 0;
 
     return box.items.map(item => {
         if (item.break) {
             const effectiveMb = mb > 0 ? mb : rowMaxH;
-            const brkVal = evalItemFormula(item.formulas?.break, ow, oh, ov, os, og, effectiveMb, curX, curY, defW, defH) ?? effectiveMb;
+            const brkVal = evalItemFormula(item.formulas?.break, ow, oh, ov, osx, osy, og, effectiveMb, curX, curY, defW, defH) ?? effectiveMb;
             curY += brkVal + og;
-            curX = r.x + os;
+            curX = r.x + osx;
             rowMaxH = 0;
         }
         const mx = curX, my = curY;
         const f = item.formulas ?? {};
-        const w = evalItemFormula(f.w, ow, oh, ov, os, og, mb, mx, my, defW, defH) ?? defW;
-        const h = evalItemFormula(f.h, ow, oh, ov, os, og, mb, mx, my, defW, defH) ?? defH;
-        const x = evalItemFormula(f.x, ow, oh, ov, os, og, mb, mx, my, defW, defH) ?? mx;
-        const y = evalItemFormula(f.y, ow, oh, ov, os, og, mb, mx, my, defW, defH) ?? my;
+        const w = evalItemFormula(f.w, ow, oh, ov, osx, osy, og, mb, mx, my, defW, defH) ?? defW;
+        const h = evalItemFormula(f.h, ow, oh, ov, osx, osy, og, mb, mx, my, defW, defH) ?? defH;
+        const x = evalItemFormula(f.x, ow, oh, ov, osx, osy, og, mb, mx, my, defW, defH) ?? mx;
+        const y = evalItemFormula(f.y, ow, oh, ov, osx, osy, og, mb, mx, my, defW, defH) ?? my;
         if (item.visible !== false) {
             curX += w + og;
             if (h > rowMaxH) rowMaxH = h;
@@ -512,17 +513,10 @@ function drawView() {
         ctx.strokeStyle = isSelected ? 'rgba(255,255,255,0.9)' : hexToRgba(c, isHovered ? 0.7 : 0.45);
         ctx.lineWidth = (isSelected ? 1.5 : 1) / camera.zoom;
         ctx.strokeRect(r.x, r.y, r.w, r.h);
-    }
 
-    // pass: items
-    const selItemState = typeof selectedItemState !== 'undefined' ? selectedItemState : null;
-    for (const box of boxes) {
-        if (box.isScreen || !box.visible || !box.items?.length) continue;
-        const r = resolveBox(box);
-        const c = box.color ?? '#5b9bd9';
-        const isBoxSelected = box === selectedBox;
+        if (!box.items?.length) continue;
+        const selItemState = typeof selectedItemState !== 'undefined' ? selectedItemState : null;
         const laid = resolveItems(box);
-
         const scrollX = box.scrollX ?? 0;
         const scrollY = box.scrollY ?? 0;
 
@@ -541,16 +535,19 @@ function drawView() {
             ctx.strokeRect(x, y, w, h);
             ctx.fillStyle = hexToRgba(c, isSelectedItem ? 1 : 0.9);
             ctx.font = `${10 / camera.zoom}px 'Segoe UI', sans-serif`;
-            ctx.fillText(item.name, x + 3 / camera.zoom, y + 12 / camera.zoom);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(item.name, x + w / 2, y + h / 2);
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'alphabetic';
         }
         ctx.restore();
 
         // scroll handles — drawn after restore so they sit on top of the box, unclipped
-        const visible = laid.filter(i => i.item.visible !== false);
-        if (!visible.length) continue;
-        const contentW = Math.max(...visible.map(i => i.x + i.w)) - r.x;
-        const contentH = Math.max(...visible.map(i => i.y + i.h)) - r.y;
-        const isHovered = box === hoveredBox;
+        const visibleItems = laid.filter(i => i.item.visible !== false);
+        if (!visibleItems.length) continue;
+        const contentW = Math.max(...visibleItems.map(i => i.x + i.w)) - r.x;
+        const contentH = Math.max(...visibleItems.map(i => i.y + i.h)) - r.y;
         const ht = 3 / camera.zoom;
         const hm = 2 / camera.zoom;
 
@@ -563,7 +560,7 @@ function drawView() {
                 ctx.fillStyle = hexToRgba(c, 0.12);
                 ctx.fillRect(r.x, r.y + r.h - ht - hm, r.w, ht);
             }
-            ctx.fillStyle = hexToRgba(c, isHovered ? 0.7 : isBoxSelected ? 0.55 : 0.3);
+            ctx.fillStyle = hexToRgba(c, isHovered ? 0.7 : isSelected ? 0.55 : 0.3);
             ctx.fillRect(handleX, r.y + r.h - ht - hm, hw, ht);
         }
         if (contentH > r.h + 0.5) {
@@ -575,7 +572,7 @@ function drawView() {
                 ctx.fillStyle = hexToRgba(c, 0.12);
                 ctx.fillRect(r.x + r.w - ht - hm, r.y, ht, r.h);
             }
-            ctx.fillStyle = hexToRgba(c, isHovered ? 0.7 : isBoxSelected ? 0.55 : 0.3);
+            ctx.fillStyle = hexToRgba(c, isHovered ? 0.7 : isSelected ? 0.55 : 0.3);
             ctx.fillRect(r.x + r.w - ht - hm, handleY, ht, hh);
         }
     }
@@ -586,16 +583,14 @@ function drawView() {
         const r = resolveBox(box);
         const c = box.color ?? '#5b9bd9';
         const isSelected = box === selectedBox;
-        const labelY = r.y + r.h - 8 / camera.zoom;
         ctx.fillStyle = hexToRgba(c, isSelected ? 1 : 0.85);
         ctx.font = `${11 / camera.zoom}px 'Segoe UI', sans-serif`;
-        if (box.labelRight) {
-            ctx.textAlign = 'right';
-            ctx.fillText(box.name, r.x + r.w - 10 / camera.zoom, labelY);
-            ctx.textAlign = 'left';
-        } else {
-            ctx.fillText(box.name, r.x + 4 / camera.zoom, labelY);
-        }
+        const lp = box.labelPos ?? 'bl';
+        const labelX = lp === 'tr' || lp === 'br' ? r.x + r.w - 10 / camera.zoom : r.x + 4 / camera.zoom;
+        const labelY = lp === 'tl' || lp === 'tr' ? r.y + 14 / camera.zoom : r.y + r.h - 8 / camera.zoom;
+        ctx.textAlign = lp === 'tr' || lp === 'br' ? 'right' : 'left';
+        ctx.fillText(box.name, labelX, labelY);
+        ctx.textAlign = 'left';
     }
 
     // snap lines

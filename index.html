@@ -65,7 +65,7 @@
                         <div class="dim-rows box-dim-rows">
                             <div class="dim-row dim-header">
                                 <span id="inspectorId" class="inspector-id"></span>
-                                <span class="dim-col-label">Box Value
+                                <span class="dim-col-label">Value
                                     <span class="formula-help-wrap">
                                         <button id="formulaHelpBtn" class="formula-help-btn">?</button>
                                         <div id="formulaHelp" class="formula-help-panel">
@@ -102,7 +102,7 @@
                                         </div>
                                     </span>
                                 </span>
-                                <span class="dim-col-label">Box Target</span>
+                                <span class="dim-col-label">Target</span>
                             </div>
                             <div class="dim-row">
                                 <span class="dim-label">Visible</span>
@@ -142,24 +142,27 @@
                                             Example: <br><b>
                                             Gap = 5<br>
                                             Margin = 5<br>
-                                            Width = (ow-os-og*3)/3</b> (splits in 3 columns)<br>
+                                            Width = (ow-osx-og*3)/3</b> (splits in 3 columns)<br>
                                             Variables:
                                             <div class="formula-help-cols">
                                                 <table class="formula-help-table">
                                                     <tr><td>o</td><td>Owner</td></tr>
-                                                    <tr><td>x</td><td>X</td></tr>
+                                                    <tr><td>m</td><td>My</td></tr>
                                                 </table>
                                                 <table class="formula-help-table">
-                                                    <tr><td>s</td><td>Spacing</td></tr>
-                                                    <tr><td>y</td><td>Y</td></tr>
-                                                </table>
-                                                <table class="formula-help-table">
-                                                    <tr><td>g</td><td>Gap</td></tr>
                                                     <tr><td>w</td><td>Width</td></tr>
+                                                    <tr><td>h</td><td>Height</td></tr>
+                                                    <tr><td>v</td><td>Visible</td></tr>
+                                                </table>
+                                                <table class="formula-help-table">
+                                                    <tr><td>x</td><td>X</td></tr>
+                                                    <tr><td>y</td><td>Y</td></tr>
+                                                    <tr><td>g</td><td>Gap</td></tr>
                                                 </table>
                                                 <table class="formula-help-table">
                                                     <tr><td>b</td><td>Break</td></tr>
-                                                    <tr><td>h</td><td>Height</td></tr>
+                                                    <tr><td>sx</td><td>Spacing X</td></tr>
+                                                    <tr><td>sy</td><td>Spacing Y</td></tr>
                                                 </table>
                                             </div>
                                         </div>
@@ -175,8 +178,12 @@
                                     <input id="itemHeight" class="dim-input" type="text">
                                 </div>
                                 <div class="item-config-row">
-                                    <span class="item-config-label">Spacing</span>
-                                    <input id="itemSpacing" class="dim-input" type="number" min="0" step="1">
+                                    <span class="item-config-label">Spacing X</span>
+                                    <input id="itemSpacingX" class="dim-input" type="number" min="0" step="1">
+                                    <span class="item-config-label">Spacing Y</span>
+                                    <input id="itemSpacingY" class="dim-input" type="number" min="0" step="1">
+                                </div>
+                                <div class="item-config-row">
                                     <span class="item-config-label">Gap</span>
                                     <input id="itemGap" class="dim-input" type="number" min="0" step="1">
                                 </div>
@@ -207,28 +214,27 @@
                                             Example: <br><b>
                                             Gap = 5<br>
                                             Margin = 5<br>
-                                            Width = (ow-os-og*3)/3</b>  (splits in 3 columns)<br>
+                                            Width = (ow-osx-og*3)/3</b>  (splits in 3 columns)<br>
                                             Variables:
                                             <div class="formula-help-cols">
                                                 <table class="formula-help-table">
                                                     <tr><td>o</td><td>Owner</td></tr>
-                                                    <tr><td>x</td><td>X</td></tr>
-                                                    <tr><td>b</td><td>Break</td></tr>
-                                                </table>
-                                                <table class="formula-help-table">
                                                     <tr><td>m</td><td>My</td></tr>
-                                                    <tr><td>y</td><td>Y</td></tr>
-                                                    <tr><td>.</td><td>.</td></tr>
                                                 </table>
                                                 <table class="formula-help-table">
-                                                    <tr><td>s</td><td>Spacing</td></tr>
                                                     <tr><td>w</td><td>Width</td></tr>
-                                                    <tr><td>.</td><td>.</td></tr>
+                                                    <tr><td>h</td><td>Height</td></tr>
+                                                    <tr><td>v</td><td>Visible</td></tr>
                                                 </table>
                                                 <table class="formula-help-table">
+                                                    <tr><td>x</td><td>X</td></tr>
+                                                    <tr><td>y</td><td>Y</td></tr>
                                                     <tr><td>g</td><td>Gap</td></tr>
-                                                    <tr><td>h</td><td>Height</td></tr>
-                                                    <tr><td>.</td><td>.</td></tr>
+                                                </table>
+                                                <table class="formula-help-table">
+                                                    <tr><td>b</td><td>Break</td></tr>
+                                                    <tr><td>sx</td><td>Spacing X</td></tr>
+                                                    <tr><td>sy</td><td>Spacing Y</td></tr>
                                                 </table>
                                             </div>
                                         </div>
@@ -238,13 +244,6 @@
                             <div class="dim-row">
                                 <span class="dim-label">Visible</span>
                                 <button id="itemVisBtn">👁️</button>
-                            </div>
-                            <div class="dim-row">
-                                <span class="dim-label">Break</span>
-                                <div class="break-wrap">
-                                    <button id="itemBreakBtn" class="break-toggle">↵</button>
-                                    <input id="itemBreakInp" class="dim-input" type="text" placeholder="mb">
-                                </div>
                             </div>
                             <div class="dim-row">
                                 <span class="dim-label">X</span>
@@ -261,6 +260,13 @@
                             <div class="dim-row">
                                 <span class="dim-label">Height</span>
                                 <input id="itemInputH" class="dim-input" type="text">
+                            </div>
+                            <div class="dim-row">
+                                <span class="dim-label">Break</span>
+                                <div class="break-wrap">
+                                    <button id="itemBreakBtn" class="break-toggle">↵</button>
+                                    <input id="itemBreakInp" class="dim-input" type="text" placeholder="mb">
+                                </div>
                             </div>
                         </div>
                     </div>
