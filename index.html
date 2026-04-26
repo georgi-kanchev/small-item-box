@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="darkreader-lock">
-    <title>𖣯 small-ui-box</title>
+    <title>𖣯 small-item-box</title>
 
     <link rel="stylesheet" href="styles/base.css">
     <link rel="stylesheet" href="styles/button.css">
@@ -65,7 +65,7 @@
                         <div class="dim-rows box-dim-rows">
                             <div class="dim-row dim-header">
                                 <span id="inspectorId" class="inspector-id"></span>
-                                <span class="dim-col-label">Value
+                                <span class="dim-col-label">Box Value
                                     <span class="formula-help-wrap">
                                         <button id="formulaHelpBtn" class="formula-help-btn">?</button>
                                         <div id="formulaHelp" class="formula-help-panel">
@@ -102,7 +102,7 @@
                                         </div>
                                     </span>
                                 </span>
-                                <span class="dim-col-label">Target</span>
+                                <span class="dim-col-label">Box Target</span>
                             </div>
                             <div class="dim-row">
                                 <span class="dim-label">Visible</span>
@@ -142,28 +142,24 @@
                                             Example: <br><b>
                                             Gap = 5<br>
                                             Margin = 5<br>
-                                            Width = (ow-os-og*3)/3</b><br>
+                                            Width = (ow-os-og*3)/3</b> (splits in 3 columns)<br>
                                             Variables:
                                             <div class="formula-help-cols">
                                                 <table class="formula-help-table">
                                                     <tr><td>o</td><td>Owner</td></tr>
                                                     <tr><td>x</td><td>X</td></tr>
+                                                </table>
+                                                <table class="formula-help-table">
                                                     <tr><td>s</td><td>Spacing</td></tr>
-                                                </table>
-                                                <table class="formula-help-table">
-                                                    <tr><td>m</td><td>My</td></tr>
                                                     <tr><td>y</td><td>Y</td></tr>
-                                                    <tr><td>b</td><td>Break</td></tr>
-                                                </table>
-                                                <table class="formula-help-table">
-                                                    <tr><td>v</td><td>Visible</td></tr>
-                                                    <tr><td>w</td><td>Width</td></tr>
-                                                    <tr><td>.</td><td>.</td></tr>
                                                 </table>
                                                 <table class="formula-help-table">
                                                     <tr><td>g</td><td>Gap</td></tr>
+                                                    <tr><td>w</td><td>Width</td></tr>
+                                                </table>
+                                                <table class="formula-help-table">
+                                                    <tr><td>b</td><td>Break</td></tr>
                                                     <tr><td>h</td><td>Height</td></tr>
-                                                    <tr><td>.</td><td>.</td></tr>
                                                 </table>
                                             </div>
                                         </div>
@@ -211,21 +207,21 @@
                                             Example: <br><b>
                                             Gap = 5<br>
                                             Margin = 5<br>
-                                            Width = (ow-os-og*3)/3</b><br>
+                                            Width = (ow-os-og*3)/3</b>  (splits in 3 columns)<br>
                                             Variables:
                                             <div class="formula-help-cols">
                                                 <table class="formula-help-table">
                                                     <tr><td>o</td><td>Owner</td></tr>
                                                     <tr><td>x</td><td>X</td></tr>
-                                                    <tr><td>s</td><td>Spacing</td></tr>
+                                                    <tr><td>b</td><td>Break</td></tr>
                                                 </table>
                                                 <table class="formula-help-table">
                                                     <tr><td>m</td><td>My</td></tr>
                                                     <tr><td>y</td><td>Y</td></tr>
-                                                    <tr><td>b</td><td>Break</td></tr>
+                                                    <tr><td>.</td><td>.</td></tr>
                                                 </table>
                                                 <table class="formula-help-table">
-                                                    <tr><td>v</td><td>Visible</td></tr>
+                                                    <tr><td>s</td><td>Spacing</td></tr>
                                                     <tr><td>w</td><td>Width</td></tr>
                                                     <tr><td>.</td><td>.</td></tr>
                                                 </table>

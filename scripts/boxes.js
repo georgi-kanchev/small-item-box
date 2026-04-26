@@ -192,7 +192,7 @@ function select(item) {
             labelPosBtn.style.display = 'none';
             itemsSection.style.display = 'none';
         } else {
-            inspectorId.textContent = `#${boxes.indexOf(item._box)}`;
+            inspectorId.textContent = `Box #${boxes.indexOf(item._box)}`;
             setActiveSwatch(item._box.color);
             colorSwatches.style.display = '';
             labelPosBtn.style.display = '';
